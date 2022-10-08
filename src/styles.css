@@ -1,0 +1,29 @@
+.lcd-display{
+    background-color: #73ef73;
+    font-size: 4rem;
+    text-align: center;
+    vertical-align: center;
+    border: solid 3px #0bb70b;
+}
+
+.item-desc{
+    width: 55%;
+}
+
+.item-total{
+    width: 15%;
+}
+
+.text-gray{
+    color: #354e81;
+    font-weight: normal !important;
+}
+
+.no-data-row{
+    height: 30vh;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #b0b9c1;
+}
