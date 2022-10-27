@@ -15,7 +15,7 @@ class Login extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {};
+        this.state = {error: false,message:""};
     }
 
     fieldUpdate = (name, value) => {
@@ -30,9 +30,24 @@ class Login extends React.Component {
                 message: "Error: Usuario y contraseña obligatorios"
             });
         }
-        if (this.username === "inseone" && this.password === "12345") {
-            this.props.onLogin();
-        }
+        fetch('api/v0/users/login',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: this.username,
+            password: this.password
+            })
+        }).then(response=>response.json())
+        .then((r)=>{
+            if(!r.success){
+                this.setState({error: true,message:r.message});
+            }
+            if(r.success){
+                this.props.onLogin();
+            }
+        });
     }
 
     render() {
@@ -75,34 +90,6 @@ class AuthenticationAndRegister extends React.Component {
     constructor(props, context) {
         super(props, context);
         this.state = {view: "login", message: 'Everything is fine', type: "alert-danger", error: false};
-    }
-
-    loginuser = (event) => {
-        let u = $('#user');
-        let p = $('#password');
-        if (u.val() === "" || p.val() === "") {
-            this.setState({error: true, message: 'Oops... se te olvido poner el usuario o contraseña'});
-            $("#message").removeClass("d-none");
-            return;
-        }
-        $.ajax({
-            url: '/api/v0/users/login',
-            type: 'post',
-            data: {
-                user: u.val(),
-                password: p.val()
-            },
-            success: (r) => {
-                if (!r.success) {
-                    $("#message").removeClass("d-none")
-                    this.setState({error: true, message: r.message})
-                }
-                if (r.success) {
-                    window.location.href = "/pos";
-                }
-            }
-        })
-        console.log(event);
     }
 
     whatToDisplay() {
