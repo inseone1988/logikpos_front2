@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../logikpos/.idea/logikpos.iml" filepath="$PROJECT_DIR$/../logikpos/.idea/logikpos.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/logikpos_front.iml" filepath="$PROJECT_DIR$/.idea/logikpos_front.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../logikpos_internal/.idea/logikpos_internal.iml" filepath="$PROJECT_DIR$/../logikpos_internal/.idea/logikpos_internal.iml" />
     </modules>
   </component>
 </project>

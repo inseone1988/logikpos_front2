@@ -1,9 +1,10 @@
 .lcd-display{
     background-color: #73ef73;
-    font-size: 4rem;
+    font-size: 3rem;
     text-align: center;
     vertical-align: center;
     border: solid 3px #0bb70b;
+    height: 100px;
 }
 
 .item-desc{
@@ -26,4 +27,40 @@
     font-weight: bold;
     font-size: 1.3rem;
     color: #b0b9c1;
+}
+
+.bg-gray{
+    background-color: #cbcbcf;
+    min-height: 1rem;
+}
+
+.logo-image{
+    min-height: 140px;
+    background-color: #ffffff;
+}
+
+.login-container{
+    background-color: #282c34;
+    min-width: 100vh;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card{
+    max-width: 60vh;
+}
+
+.registration-step{
+    font-size: 2rem;
+}
+
+.registration-step-completed{
+    color: #04de7c;
+}
+
+.search-bar-end{
+    height: 100%;
+    align-items: flex-end;
 }
