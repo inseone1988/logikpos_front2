@@ -64,3 +64,10 @@
     height: 100%;
     align-items: flex-end;
 }
+
+.table-wrapper{
+    min-height: 50vh;
+    max-height: 50vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

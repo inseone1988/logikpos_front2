@@ -33,7 +33,7 @@ function ProductEditor(props) {
             <div className="col-xxsm-12 col-sm-6 col-md-4 mb-3">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Precio</label>
-                    <input defaultValue={props.product?props.product.price:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="price" type="text" className="form-control" />
+                    <input defaultValue={props.product?props.product.Price.price:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="Price" type="text" className="form-control" />
                 </div>
             </div>
             <div className="col-12 mb-3">
@@ -48,26 +48,27 @@ function ProductEditor(props) {
                                     <div className="col-sm-12 col-md-4">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Existencias</label>
-                                            <input defaultValue={props.product?props.product.currentAmmount:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="currentAmmount" type="text" className="form-control" />
+                                            <input defaultValue={props.product?props.product.Inventory.currentSupply:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="currentAmmount" type="text" className="form-control" />
                                         </div>
                                     </div>
                                     <div className="col-sm-12 col-md-4">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Existencias minimas</label>
-                                            <input defaultValue={props.product?props.product.minimalExistences:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="minimalExistences" type="text" className="form-control" />
+                                            <input defaultValue={props.product?props.product.Inventory.minExistences:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="minimalExistences" type="text" className="form-control" />
                                         </div>
                                     </div>
                                     <div className="col-md-4 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Proveedor</label>
-                                            <select defaultValue={props.product?props.product.ProviderId:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="ProviderId" defaultValue={"Seleccione un provedor"} type="text" className="form-select">
+                                            <select defaultValue={props.product?props.product.ProviderId:"1"} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="ProviderId" type="text" className="form-select">
+                                                <option value="1">Provedor Generico</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div className="col-md-4 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Costo</label>
-                                            <input defaultValue={props.product?props.product.cost:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="cost" type="text" className="form-control"/>
+                                            <input defaultValue={props.product?props.product.Inventory.lastCost:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="cost" type="text" className="form-control"/>
                                         </div>
                                     </div>
                                 </div>
@@ -91,9 +92,9 @@ function ProductsInfo(props) {
                 <td>{p.description}</td>
                 <td>{p.internalCode}</td>
                 <td>{p.sku}</td>
-                <td>{p.price.price}</td>
-                <td>{}</td>
-                <td>{}</td>
+                <td>{p.Price.price}</td>
+                <td>{p.Provider?p.Provider.social_name:"Proveedor generico"}</td>
+                <td>{p.Inventory?p.Inventory.currentSupply:"Producto no maneja inventario"}</td>
             </tr>);
     }) : (<tr><td colSpan={6} className='no-data-row'>Toma el control de tu negocio e inicia agregando productos a tu inventario</td></tr>);
 
@@ -125,13 +126,31 @@ class ProductEdition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { products: undefined, editing: false, selectedProduct: undefined, cardTitle: "Productos" };
+        this.state = { products: props.products, editing: false, selectedProduct: undefined, cardTitle: "Productos" };
     }
 
     productSaveCallback = ()=>{
-        if(!this.state.products) this.state.products = [];
-        if(!this.state.selectedProduct.index&&this.state.selectedProduct.index !==0)this.state.products.push(this.state.selectedProduct);
-        this.setState({products:this.state.products,editing:false,selectedProduct:undefined,cardTitle:"Productos"})
+        fetch("api/v0/products",{
+            method:"POST",
+            headers : {
+                'Content-Type':'application/json'
+            },
+            body : JSON.stringify(this.state.selectedProduct)
+        }).then(r=>r.json())
+            .then(r=>{
+                if (r.success){
+                    if(!this.state.selectedProduct.index&&this.state.selectedProduct.index !==0)this.state.products.push(this.state.selectedProduct);
+                    this.setState({products:this.state.products,editing:false,selectedProduct:undefined,cardTitle:"Productos"});
+                    return;
+                }
+                if (!r.success){
+                    Swal.fire(
+                        "Error",
+                        r.message,
+                        "error"
+                    );
+                }
+            })
     }
 
     handleProductUpdate = (v,n)=>{

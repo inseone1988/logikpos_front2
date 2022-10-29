@@ -15,7 +15,7 @@ class Login extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {error: false,message:""};
+        this.state = {error: false, message: ""};
     }
 
     fieldUpdate = (name, value) => {
@@ -30,24 +30,24 @@ class Login extends React.Component {
                 message: "Error: Usuario y contraseña obligatorios"
             });
         }
-        fetch('api/v0/users/login',{
+        fetch('api/v0/users/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 username: this.username,
-            password: this.password
+                password: this.password
             })
-        }).then(response=>response.json())
-        .then((r)=>{
-            if(!r.success){
-                this.setState({error: true,message:r.message});
-            }
-            if(r.success){
-                this.props.onLogin();
-            }
-        });
+        }).then(response => response.json())
+            .then((r) => {
+                if (!r.success) {
+                    this.setState({error: true, message: r.message});
+                }
+                if (r.success) {
+                    this.props.onLogin(r.user);
+                }
+            });
     }
 
     render() {
@@ -89,18 +89,32 @@ class Login extends React.Component {
 class AuthenticationAndRegister extends React.Component {
     constructor(props, context) {
         super(props, context);
-        this.state = {view: "login", message: 'Everything is fine', type: "alert-danger", error: false};
+        this.checkSession();
+        this.state = {view: "", message: 'Everything is fine', type: "alert-danger", error: false};
     }
+
+    async checkSession() {
+        fetch('api/v0/users/session').then(response => response.json())
+            .then((r) => {
+                if (r.success) {
+                    return this.setState({user: r.user, view: "dash"});
+                }
+                if(!r.success) {
+                    this.setState({view: "login"});
+                }
+            });
+    }
+
 
     whatToDisplay() {
         switch (this.state.view) {
             case "login":
-                return <Login onLogin={() => this.setState({view:"dash"})}
+                return <Login onLogin={(user) => this.setState({user: user, view: "dash"})}
                               displayRegistrationForm={this.displayRegistrationForm}/>
             case "register":
                 return <Registration/>
             case "dash":
-                return <POS/>
+                return <POS user={this.state.user}/>
         }
     }
 

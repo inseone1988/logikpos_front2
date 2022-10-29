@@ -7,7 +7,7 @@ import AuthenticationAndRegister from './login';
 //import SellViewport from "./SellViewport";
 //import CustomerView from "./customers";
 //import ProductEdition from './productedition';
-import UsersView from './users';
+//import UsersView from './users';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(

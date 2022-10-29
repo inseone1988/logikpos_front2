@@ -52,7 +52,7 @@ function NavBar(props) {
                             <Clock />
                         </li>
                         <li className={"nav-item"}>
-                            {props.user ? props.user.client.fullName : "Invitado"}
+                            {props.user ? props.user.Client.fullName : "Invitado"}
                             <button className="ms-2 btn btn-light">
                                 <i className="bi-box-arrow-right" />
                             </button>
@@ -104,10 +104,10 @@ function MainContent(props) {
 
     const whatToDisplay = () => {
         switch (props.currentview) {
-            case "sellviewport":
-                return <SellViewport />
+            case "venta":
+                return <SellViewport products={props.products} />
             case "productos":
-                return <ProductEdition />
+                return <ProductEdition products={props.products} />
             case "provedores":
                 return <ProvidersDisplay />
             case "clientes":
@@ -138,7 +138,7 @@ class POS extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = { currentview: "sellviewport", user: undefined };
+        this.state = {user:this.props.user, currentview: "venta"};
     }
 
     changeContext = (view) => {
@@ -147,16 +147,16 @@ class POS extends React.Component {
     }
 
     componentDidMount() {
-        $.ajax({
-            url: "/api/v0/users",
-            success: (res) => {
-                if (res.success) {
-                    this.setState({ user: res.payload });
-                }
-                if (!res.success) window.location.href = "/login"
-            },
-            error: () => {
-                // window.location.href = "/login";
+        fetch("api/v0/products/all",{
+            method:"GET",
+            headers:{
+                "Content-Type":"application/json"
+            }
+        }).then((response)=>{return response.json()}
+        ).then((data)=>{
+            if(data.success){
+                console.log(data);
+                this.setState({products:data.payload});
             }
         });
     }
@@ -165,7 +165,7 @@ class POS extends React.Component {
         return (
             <div className="container-fluid">
                 <NavBar user={this.state.user} />
-                <MainContent itemClick={this.changeContext} currentview={this.state.currentview} />
+                <MainContent products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
             </div>
         );
     }
