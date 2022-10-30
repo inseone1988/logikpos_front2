@@ -53,7 +53,7 @@ function NavBar(props) {
                         </li>
                         <li className={"nav-item"}>
                             {props.user ? props.user.Client.fullName : "Invitado"}
-                            <button className="ms-2 btn btn-light">
+                            <button onClick={props.logout} className="ms-2 btn btn-light">
                                 <i className="bi-box-arrow-right" />
                             </button>
                         </li>
@@ -72,27 +72,39 @@ function SideBar(props) {
             <div className="list-group mt-3">
                 <button onClick={() => {
                     props.itemClick("venta")
-                }} className="list-group-item list-group-item-action">Venta
+                }} className="list-group-item list-group-item-action">
+                    <i className="bi-shop mr-3"></i>
+                      &nbsp;Venta
                 </button>
                 <button onClick={() => {
                     props.itemClick("productos")
-                }} className="list-group-item list-group-item-action">Productos
+                }} className="list-group-item list-group-item-action">
+                    <i className="bi-box mr-3"></i>
+                    &nbsp;Productos
                 </button>
                 <button onClick={() => {
                     props.itemClick("provedores")
-                }} className="list-group-item list-group-item-action">Proveedores
+                }} className="list-group-item list-group-item-action">
+                    <i className="bi-truck mr-3"></i>
+                    &nbsp;Proveedores
                 </button>
                 <button onClick={() => {
                     props.itemClick("clientes")
-                }} className="list-group-item list-group-item-action">Clientes
+                }} className="list-group-item list-group-item-action">
+                    <i className="bi-people mr-3"></i>
+                    &nbsp;
+                    Clientes
                 </button>
                 <button onClick={()=>props.itemClick("reporteria")} className="list-group-item list-group-item-action">
+                    <i className="bi-bar-chart-line mr-3"></i>&nbsp;
                     Reporteria
                 </button>
                 <button onClick={()=>props.itemClick("usuarios")} className="list-group-item list-group-item-action">
+                    <i className="bi-person-lines-fill mr-3"></i>&nbsp;
                     Usuarios
                 </button>
                 <button onClick={()=>props.itemClick("configuration")} className="list-group-item list-group-item-action">
+                    <i className="bi-gear-fill mr-3"></i>&nbsp;
                     Configuracion
                 </button>
             </div>
@@ -161,10 +173,24 @@ class POS extends React.Component {
         });
     }
 
+    logout (){
+        fetch("api/v0/users/logout",{
+            method:"GET",
+            headers:{
+                "Content-Type":"application/json"
+            }
+        }).then((response)=>{return response.json()}
+        ).then((data)=>{
+            if(data.success){
+                window.location.reload();
+            }
+        });
+    }
+
     render() {
         return (
             <div className="container-fluid">
-                <NavBar user={this.state.user} />
+                <NavBar logout={this.logout} user={this.state.user} />
                 <MainContent products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
             </div>
         );

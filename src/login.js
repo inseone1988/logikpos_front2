@@ -30,7 +30,7 @@ class Login extends React.Component {
                 message: "Error: Usuario y contraseña obligatorios"
             });
         }
-        fetch('api/v0/users/login', {
+        fetch('/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

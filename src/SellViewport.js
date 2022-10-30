@@ -5,6 +5,8 @@ import './styles.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import numeral from 'numeral';
 import Swal from 'sweetalert2';
+import '@tarekraafat/autocomplete.js/dist/css/autoComplete.css';
+import '@tarekraafat/autocomplete.js/dist/autoComplete';
 
 function ItemPanel(props) {
 
@@ -92,9 +94,17 @@ function CodeCapture(props) {
         }
     }
 
+    /**
+     * Helper methos to populate fake products for testing
+     */
+    async function createFakeProducts(){
+        await fetch('api/v0/products/faketize');
+    }
+
     return (
         <div className="row search-bar-end">
             <div className="col-12">
+                <button onClick={createFakeProducts} className="btn btn-sm btn-primary mb-3">Faketize</button>
                 <div className="input-group input-group-lg mb-3">
                     <span className="input-group-text">
                         <i className="bi-search"/>
@@ -254,17 +264,21 @@ handleCheckout = (event) => {
 
 updateOrderItems = (product, index) => {
     //TODO: Implement modal to select which one when more than one product is found
-    this.setState((state) => {
-        if (index === undefined) {
-            let p = product[0];
-            p.quantity = 1;
-            p.price = p.Price.price;
-            p.ProductId = p.id;
-            state.order.items.push(p);
-            state = this.updateOrder(state);
-            return state;
-        }
-    })
+    if(product.length){
+        this.setState((state) => {
+            if (index === undefined) {
+                let p = product[0];
+                p.quantity = 1;
+                p.price = p.Price.price;
+                p.ProductId = p.id;
+                state.order.items.push(p);
+                state = this.updateOrder(state);
+                return state;
+            }
+        })
+        return;
+    }
+    Swal.fire('Error', 'No se encontro el producto', 'error');
 }
 
 search = (string) => {

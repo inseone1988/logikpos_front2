@@ -4,6 +4,7 @@ import "bootstrap/dist/js/bootstrap.bundle";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "moment/dist/locale/es-mx";
 import moment from "moment";
+import Swal from 'sweetalert2';
 
 moment.locale("es-mx");
 
@@ -22,7 +23,7 @@ function CustomerEditor(props) {
             <div className="col-xxsm-12 col-sm-6 col-md-4">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Apellido paterno</label>
-                    <input defaultValue={props.customer ? props.customer.fname : ""} name="fname"
+                    <input defaultValue={props.customer ? props.customer.lastName : ""} name="lastName"
                            onChange={(e) => props.onFormChangeBind(e.target.value, e.target.name)} type="text"
                            className="form-control"/>
                 </div>
@@ -30,7 +31,7 @@ function CustomerEditor(props) {
             <div className="col-xxsm-12 col-sm-6 col-md-4">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Apellido materno</label>
-                    <input defaultValue={props.customer ? props.customer.lname : ""} name="lname"
+                    <input defaultValue={props.customer ? props.customer.surName : ""} name="surName"
                            onChange={(e) => props.onFormChangeBind(e.target.value, e.target.name)} type="text"
                            className="form-control"/>
                 </div>
@@ -38,7 +39,7 @@ function CustomerEditor(props) {
             <div className="col-xxsm-12 col-sm-6 col-md-4">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Limite de credito</label>
-                    <input defaultValue={props.customer ? props.customer.credit : ""} name="credit"
+                    <input defaultValue={props.customer ? props.customer.creditLimit : ""} name="creditLimit"
                            onChange={(e) => props.onFormChangeBind(e.target.value, e.target.name)} type="text"
                            className="form-control"/>
                 </div>
@@ -59,7 +60,7 @@ function CustomerEditor(props) {
                               className="form-control"/>
                 </div>
             </div>
-            <div className="col-12">
+            <div className="col-12 mb-3">
                 <div className="card">
                     <div className="card-body">
                         <div className="row">
@@ -67,7 +68,7 @@ function CustomerEditor(props) {
                                 <h5>Datos fiscales (Facturacion)</h5>
                                 <div className="form-group">
                                     <label htmlFor="" className="form-label">RFC</label>
-                                    <input defaultValue={props.customer ? props.customer.taxid : ""} name="taxid"
+                                    <input defaultValue={props.customer ? props.customer.taxId : ""} name="taxId"
                                            onChange={(e) => props.onFormChangeBind(e.target.value, e.target.name)}
                                            type="text" className="form-control"/>
                                 </div>
@@ -89,7 +90,8 @@ function CustomerEditor(props) {
                     </div>
                 </div>
             </div>
-            <div className="col-12">
+            <div className="col-12 d-flex justify-content-end align-content-end">
+                <button className={`btn btn-danger mr-3 ${props.customer.id?"":"d-none"}`} onClick={props.onDelete}>Eliminar</button>
                 <button className="btn btn-primary" onClick={props.onSave}>Guardar</button>
             </div>
         </div>
@@ -107,9 +109,10 @@ function CustomerInfo(props) {
 
 function ExistentCustomersView(props) {
 
-    const rows = props.customers ? props.customers.map((e, i) => {
+    const rows = props.customers.length ? props.customers.map((e, i) => {
         return (<tr key={i} onDoubleClick={() => props.setEditMode(e, i)}>
-            <td>{e.name}</td>
+            <td>{e.fullName}</td>
+            <td>{e.businessName}</td>
             <td>{e.phone}</td>
             <td>{moment(e.updated_at).format("DD MMMM YYYY h:m:s")}</td>
         </tr>)
@@ -120,7 +123,7 @@ function ExistentCustomersView(props) {
     return (
         <div className="row">
             <div className="col-12 mb-3">
-                <button onClick={props.setEditMode} className="btn btn-sm btn-primary">
+                <button onClick={(e)=>{props.setEditMode()}} className="btn btn-sm btn-primary">
                     Nuevo cliente
                     <i className="bi-plus"/>
                 </button>
@@ -130,6 +133,7 @@ function ExistentCustomersView(props) {
                     <thead>
                     <tr>
                         <th>Nombre</th>
+                        <th>Razon Social</th>
                         <th>Telefono</th>
                         <th>Ultima visita</th>
                     </tr>
@@ -147,35 +151,80 @@ class CustomersView extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {customers: undefined, editing: false, selectedCustomer: undefined, cardTitle: "Clientes"}
+        this.state = {customers: [], editing: false, selectedCustomer: undefined, cardTitle: "Clientes"}
     }
 
     componentDidMount() {
+        this.getCustomers();
+    }
 
+    getCustomers() {
+        fetch("/api/v0/customers", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            this.setState({customers: data.payload});
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     setEditMode = (selectedCustomer, index) => {
-
-        console.log(selectedCustomer, index);
-        if (selectedCustomer) selectedCustomer.index = index;
-        const customerData = {
-            name: "",
-            lastName: "",
-            phone: "",
-            email: "",
-            address: "",
-            fiscalData: {}
-        };
-        this.setState({
-            cardTitle: "Editar cliente",
-            editing: true,
-            selectedCustomer: selectedCustomer.name ? selectedCustomer : customerData
+        this.setState((state) => {
+            return {
+                editing: true,
+                selectedCustomer: selectedCustomer? selectedCustomer : {},
+                cardTitle: "Editar cliente"
+            };
         });
     }
 
     updateCustomer = (e, name) => {
-        this.state.selectedCustomer[name] = e;
-        this.setState({selectedCustomer: this.state.selectedCustomer});
+        this.setState((state)=>{
+            state.selectedCustomer[name] = e;
+            return state;
+        })
+    }
+
+    deleteCustomer = () => {
+        Swal.fire({
+            title: '¿Estas seguro?',
+            text: "No podras revertir esta accion",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, eliminar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("/api/v0/customers/"+this.state.selectedCustomer.id, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    if(data.success){
+                        this.setState({editing: false, selectedCustomer: undefined, cardTitle: "Clientes"});
+                        this.getCustomers();
+                        Swal.fire(
+                            'Eliminado!',
+                            'El cliente ha sido eliminado',
+                            'success'
+                        )
+                    }
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
+        })
     }
 
     whatToDisplay() {
@@ -185,7 +234,7 @@ class CustomersView extends React.Component {
                                               selectedCustomer={this.state.selectedCustomer}
                                               setEditMode={this.setEditMode}/>
             case "Editar cliente":
-                return <CustomerEditor onSave={this.addcustomerToCollection} onFormChangeBind={this.updateCustomer}
+                return <CustomerEditor onDelete={this.deleteCustomer} onSave={this.onCustomerSave} onFormChangeBind={this.updateCustomer}
                                        customer={this.state.selectedCustomer}/>;
             case "Informacion de cliente":
                 return <CustomerInfo selectedCustomer={this.state.selectedCustomer}/>;
@@ -194,15 +243,37 @@ class CustomersView extends React.Component {
         }
     }
 
-    addcustomerToCollection = () => {
-        if (!Array.isArray(this.state.customers)) this.state.customers = [];
-        this.state.selectedCustomer.updated_at = moment().format();
-        if (!this.state.selectedCustomer.index && this.state.selectedCustomer.index !== 0) this.state.customers.push(this.state.selectedCustomer);
-        this.setState({
-            customers: this.state.customers,
-            editing: false,
-            selectedCustomer: undefined,
-            cardTitle: "Clientes"
+    onCustomerSave = () => {
+        let updateCustomer = this.state.selectedCustomer.id?`/${this.state.selectedCustomer.id}`:"";
+        fetch("/api/v0/customers" + updateCustomer, {
+            method: updateCustomer!==""?"PUT":"POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(this.state.selectedCustomer)
+        }).then((response) => {
+            return response.json();
+        }).then((data) => {
+            if(data.success){
+                this.setState((state)=>{
+                    state.cardTitle = "Clientes";
+                    state.editing = false;
+                    if (updateCustomer!==""){
+                        state.customers = state.customers.map((e, i) => {
+                            if (e.id === data.payload.id) {
+                                return data.payload;
+                            }
+                            return e;
+                        });
+                    }else{
+                        state.customers.push(data.payload);
+                    }
+                    return state;
+                });
+            }
+        }).catch((error) => {
+            console.log(error);
         });
     }
 

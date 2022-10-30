@@ -25,7 +25,7 @@ function ProviderEditor(props) {
             success: (r) => {
                 if (r.success) {
                     console.log(r);
-                    props.providerSavedCallback(data);
+                    props.onProviderDataSave(data);
                 }
             }
         });
@@ -95,7 +95,6 @@ function ExistentProvidersDisplay(props) {
                 title: '¿Eliminar ' + e.social_name + "?",
                 text: "Esta accion es irreversible!",
                 icon: 'warning',
-                showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 cancelButtonText : 'Cancelar',
@@ -176,38 +175,47 @@ class ProvidersDisplay extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {editingProvider: false, providers: undefined, selectedProvider: undefined, loaded: false};
+        this.state = {editingProvider: false, providers: [], selectedProvider: undefined,view:"providerList"};
     }
 
     componentDidMount() {
-        if (!this.state.loaded) {
-            $.ajax({
-                url: "/api/v0/providers",
-                success: (r) => {
-                    if (r.success) {
-                        this.setState({providers: r.payload})
-                    }
+        //TODO: Remember to replace jquery dependency
+        $.ajax({
+            url: "/api/v0/providers",
+            success: (r) => {
+                if (r.success) {
+                    this.setState({providers: r.payload})
                 }
-            })
-        }
-        this.setState({loaded: true})
+            }
+        })
     }
 
     editProvider = (provider) => {
-        this.setState({editingProvider: true, selectedProvider: provider})
+        this.setState({editingProvider: true, selectedProvider: provider,view:"providerEdit"});
     }
 
     providerSavedCallback = (provider) => {
-        this.state.providers.push(provider);
-        this.setState({editingProvider: false, selectedProvider: undefined, providers: this.state.providers})
+        this.setState((state)=>{
+            if(!provider.id){
+                state.providers.push(provider);
+                return {providers:state.providers,editingProvider:false,selectedProvider:undefined,view:"providerList"};
+            }
+            const nList = state.providers.map((item)=>{
+                if (item.id === provider.id){
+                    return provider;
+                }
+                return item;
+            })
+            return {providers:nList,editingProvider:false,selectedProvider:undefined};
+        })
     }
 
     onProviderEditingCancel = () => {
-        this.setState({editingProvider: false, selectedProvider: undefined});
+        this.setState({editingProvider: false, selectedProvider: undefined,view:"providerList"});
     }
 
     createNewProvider = () => {
-        this.setState({editingProvider: true});
+        this.setState({editingProvider: true,view:"providerEdit"});
     }
 
     onProviderDeleted = (providers)=>{
@@ -215,11 +223,12 @@ class ProvidersDisplay extends React.Component {
     }
 
     whatToDisplay() {
-        return this.state.editingProvider ? (<ProviderEditor onProviderEditingCancel={this.onProviderEditingCancel}
-                                                             providerSavedCallback={this.providerSavedCallback}
-                                                             provider={this.state.selectedProvider}/>) : (
-            <ExistentProvidersDisplay createNewProviderCallback={this.createNewProvider}
-                                      providers={this.state.providers} onProviderDeleted={this.onProviderDeleted} onProviderSelect={this.editProvider}/>)
+        switch (this.state.view) {
+            case "providerList":
+                return <ExistentProvidersDisplay onProviderDeleted={this.onProviderDeleted} providers={this.state.providers} onProviderSelect={this.editProvider} createNewProviderCallback={this.createNewProvider}/>
+            case "providerEdit":
+                return <ProviderEditor onProviderDataSave={this.providerSavedCallback} onProviderEditingCancel={this.onProviderEditingCancel} provider={this.state.selectedProvider}/>
+        }
     }
 
     render() {
