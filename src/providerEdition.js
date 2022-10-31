@@ -85,7 +85,7 @@ function ProviderEditor(props) {
 
 function ExistentProvidersDisplay(props) {
 
-    const providerRows = props.providers ? props.providers.map((e, i) => {
+    const providerRows = props.providers.length ? props.providers.map((e, i) => {
         const onEditClick = () => {
             props.onProviderSelect(e);
         }
