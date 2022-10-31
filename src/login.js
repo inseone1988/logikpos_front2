@@ -94,7 +94,7 @@ class AuthenticationAndRegister extends React.Component {
     }
 
     async checkSession() {
-        fetch('api/v0/users/session').then(response => response.json())
+        fetch('/session').then(response => response.json())
             .then((r) => {
                 if (r.success) {
                     return this.setState({user: r.user, view: "dash"});

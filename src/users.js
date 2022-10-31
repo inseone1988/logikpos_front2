@@ -2,33 +2,71 @@ import React from "react";
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles.css';
+import Swal from "sweetalert2";
 
 function UserEditor(props) {
+
+    function mapPermissions(){
+        const permissions = props.selectedUser.permissions;
+        const permissionsMap = [];
+        if (props.selectedUser.id){
+            if(permissions.users) permissionsMap.push("u");
+            if(permissions.products) permissionsMap.push("p");
+            if(permissions.clients) permissionsMap.push("c");
+            if(permissions.vendors) permissionsMap.push("v");
+            if(permissions.reports) permissionsMap.push("r");
+            if(permissions.config) permissionsMap.push("f");
+        }
+        return permissionsMap;
+    }
+
     return (
         <div className="row">
-            <div className="col-6">
+            <div className="col-3">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Nombre</label>
-                    <input onChange={(e)=>props.onUpdateUser(e.target.name,e.target.value)} name={"name"} type="text" className="form-control" />
+                    <input defaultValue={props.selectedUser.id ? props.selectedUser.Client.name : ""}
+                           onChange={(e) => props.onUpdateUser(e.target.name, e.target.value)} name={"name"} type="text"
+                           className="form-control"/>
+                </div>
+            </div>
+            <div className="col-3">
+                <div className="form-group">
+                    <label htmlFor="" className="form-label">Apellido</label>
+                    <input defaultValue={props.selectedUser.id ? props.selectedUser.Client.lastName : ""}
+                           onChange={(e) => props.onUpdateUser(e.target.name, e.target.value)} name={"lastName"}
+                           type="text" className="form-control"/>
+                </div>
+            </div>
+            <div className="col-6">
+                <div className="form-group">
+                    <label htmlFor="" className="form-label">Email</label>
+                    <input defaultValue={props.selectedUser.id ? props.selectedUser.Client.email : ""}
+                           onChange={(e) => props.onUpdateUser(e.target.name, e.target.value)} name={"email"}
+                           type="text" className="form-control"/>
                 </div>
             </div>
             <div className="col-sm-12 col-md-3">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Usuario</label>
-                    <input onChange={(e)=>props.onUpdateUser(e.target.name,e.target.value)} name={"userName"} type="text" className="form-control" />
+                    <input defaultValue={props.selectedUser.id ? props.selectedUser.userName : ""}
+                           onChange={(e) => props.onUpdateUser(e.target.name, e.target.value)} name={"userName"}
+                           type="text" className="form-control"/>
                 </div>
             </div>
             <div className="col-sm-12 col-md-3">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Contraseña</label>
-                    <input onChange={(e)=>props.onUpdateUser(e.target.name,e.target.value)} name={"password"} type="text" className="form-control" />
+                    <input onChange={(e) => props.onUpdateUser(e.target.name, e.target.value)} name={"password"}
+                           type="text" className="form-control"/>
                 </div>
             </div>
             <div className="col-sm-12 col-md-3">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Rol</label>
-                    <select onChange={(e)=>props.onUpdateUser(e.target.name,e.target.value)} defaultValue={"user"} className={"form-select"} name="role" id="">
-                    
+                    <select onChange={(e) => props.onUpdateUser(e.target.name, e.target.value)} defaultValue={"user"}
+                            className={"form-select"} name="role" id="">
+
                         <option value="USER">Usuario estandar</option>
                     </select>
                 </div>
@@ -36,7 +74,9 @@ function UserEditor(props) {
             <div className="col-sm-12 col-md-2 mb-3">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Status</label>
-                    <select onChange={(e)=>props.onUpdateUser(e.target.name,e.target.value)} name="active" id="" className="form-select">
+                    <select defaultValue={props.selectedUser.id ? props.selectedUser.active : ""}
+                            onChange={(e) => props.onUpdateUser(e.target.name, e.target.value)} name="active" id=""
+                            className="form-select">
                         <option value="true">Activo</option>
                         <option value="false">Inactivo</option>
                     </select>
@@ -50,7 +90,8 @@ function UserEditor(props) {
                     <div className="card-body">
                         <div className="row">
                             <div className="col-12">
-                                <select onChange={(e)=>props.onUpdateUser(e.target.name,e.target.value,e)} multiple={true} name="permisions" id="" className="form-select">
+                                <select defaultValue={mapPermissions()} onChange={(e) => props.onUpdateUser(e.target.name, e.target.value, e)}
+                                        multiple={true} size={6} name="permissions" id="" className="form-select">
                                     <option value="p">Editar productos</option>
                                     <option value="c">Editar clientes</option>
                                     <option value="v">Editar Proveedores</option>
@@ -65,6 +106,7 @@ function UserEditor(props) {
             </div>
             <div className="row">
                 <div className="col-12">
+                    <button onClick={() => props.onDeleteUser()} className={`btn btn-sm btn-danger me-3 ${props.selectedUser.id ? "" : "d-none"}`}>Eliminar</button>
                     <button onClick={() => props.onSaveUser()} className="btn btn-sm btn-primary">Guardar</button>
                 </div>
             </div>
@@ -74,12 +116,12 @@ function UserEditor(props) {
 
 function UsersListing(props) {
 
-    const rows = props.users.length ? props.users.map((e, i) => {
-        return <tr>
-            <td>{e.username}</td>
-            <td>{e.role}</td>
-            <td>{e.status}</td>
-            <td>{e.name}</td>
+    const rows = props.users.length ? props.users.map((user, i) => {
+        return <tr key={i} onDoubleClick={(e) => props.onUserSelected(user, i)}>
+            <td>{user.Client.fullName}</td>
+            <td>{user.userName}</td>
+            <td>{user.role}</td>
+            <td>{user.active}</td>
         </tr>
     }) : (
         <tr>
@@ -91,15 +133,15 @@ function UsersListing(props) {
             <div className="col-12">
                 <table className="table table-sm table-bordered table-stripped">
                     <thead>
-                        <tr>
-                            <th>Nombre</th>
-                            <th>Usuario</th>
-                            <th>rol</th>
-                            <th>status</th>
-                        </tr>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>rol</th>
+                        <th>status</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {rows}
+                    {rows}
                     </tbody>
                 </table>
             </div>
@@ -115,7 +157,10 @@ function Card(props) {
                 <h6>{props.title}</h6>
                 <div className="row">
                     <div className="col-12">
-                        <button disabled={props.editing} onClick={() => props.editUser(props.selectedUser ? props.selectedUser : {})} className={`btn btn-sm btn-primary ${props.editing ? "d-none" : ""}`}>Agregar usuario <i className="bi-plus"></i></button>
+                        <button disabled={props.editing}
+                                onClick={() => props.editUser(props.selectedUser ? props.selectedUser : {})}
+                                className={`btn btn-sm btn-primary ${props.editing ? "d-none" : ""}`}>Agregar usuario <i
+                            className="bi-plus"></i></button>
                     </div>
                 </div>
             </div>
@@ -130,7 +175,11 @@ class UsersView extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {users:[], selectedUser: undefined, editing: false, cardTitle: "Usuarios"};
+        this.state = {users: [], selectedUser: undefined, editing: false, cardTitle: "Usuarios"};
+    }
+
+    componentDidMount() {
+        this.loadUsers();
     }
 
     whatToDisplay = () => {
@@ -138,15 +187,16 @@ class UsersView extends React.Component {
             case "Usuarios":
                 return <UsersListing users={this.state.users} onUserSelected={this.editUserCallback}/>
             case "Edicion de usuario":
-                return <UserEditor onUpdateUser={this.updateUser} onSaveUser={this.saveUser} selectedUser={this.state.selectedUser} />
+                return <UserEditor onUpdateUser={this.updateUser} onSaveUser={this.saveUser}
+                                   selectedUser={this.state.selectedUser}/>
         }
     }
 
-    updateUser = (field, value,e) => {
+    updateUser = (field, value, e) => {
         this.setState((state) => {
-            if(field==="userName"||field==="password"||field==="role"||field==="active"||field==="permisions"){
-                if(!state.selectedUser.User) state.selectedUser.User = {};
-                if(field === "permisions"){
+            if (field === "userName" || field === "password" || field === "role" || field === "active" || field === "permisions") {
+                if (!state.selectedUser.User) state.selectedUser.User = {};
+                if (field === "permissions") {
                     let p = {};
                     let sOpts = e.target.selectedOptions;
                     for (const permision of sOpts) {
@@ -158,7 +208,7 @@ class UsersView extends React.Component {
                                 p["clients"] = true;
                                 break;
                             case "r":
-                                p["report"] = true;
+                                p["reports"] = true;
                                 break;
                             case "v":
                                 p["vendors"] = true;
@@ -182,7 +232,7 @@ class UsersView extends React.Component {
             state.selectedUser[field] = value;
             return state;
         });
-    
+
     }
 
     loadUsers = () => {
@@ -203,38 +253,31 @@ class UsersView extends React.Component {
             },
             body: JSON.stringify(this.state.selectedUser)
         }).then((res) => res.json())
-        .then((r)=>{
-            if(r.success){
-                this.setState({selectedUser: undefined, editing: false, cardTitle: "Usuarios"});
-                this.loadUsers();
-            }
-        }).catch((err) => {
+            .then((r) => {
+                if (r.success) {
+                    this.setState({selectedUser: undefined, editing: false, cardTitle: "Usuarios"});
+                    this.loadUsers();
+                }else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: r.message,
+                    })
+                }
+            }).catch((err) => {
             console.log(err);
-        });
-        console.log(this.state.selectedUser);
-        this.setState((state)=>{
-            state.editing = false;
-            state.cardTitle = "Usuarios";
-            if(state.selectedUser.id){
-                state.users = state.users.map((e,i)=>{
-                    if(e.id===state.selectedUser.id) return state.selectedUser;
-                    return e;
-                });
-            }else{
-                state.users.push(state.selectedUser);
-            }
-            return state;
         });
     }
 
-    editUserCallback = (selectedUser) => {
-        this.setState({ editing: true, cardTitle: "Edicion de usuario", selectedUser: selectedUser });
+    editUserCallback = (selectedUser, index) => {
+        console.log(selectedUser);
+        this.setState({editing: true, cardTitle: "Edicion de usuario", selectedUser: selectedUser});
     }
 
     render() {
         return (
             <div className="container">
-                <Card editing={this.state.editing} editUser={this.editUserCallback} content={this.whatToDisplay} title={this.state.cardTitle} />
+                <Card editing={this.state.editing} editUser={this.editUserCallback} content={this.whatToDisplay}
+                      title={this.state.cardTitle}/>
             </div>
         );
     }
