@@ -194,7 +194,7 @@ class UsersView extends React.Component {
 
     updateUser = (field, value, e) => {
         this.setState((state) => {
-            if (field === "userName" || field === "password" || field === "role" || field === "active" || field === "permisions") {
+            if (field === "userName" || field === "password" || field === "role" || field === "active" || field === "permissions") {
                 if (!state.selectedUser.User) state.selectedUser.User = {};
                 if (field === "permissions") {
                     let p = {};

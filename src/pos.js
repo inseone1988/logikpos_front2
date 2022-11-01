@@ -119,7 +119,7 @@ function MainContent(props) {
             case "venta":
                 return <SellViewport products={props.products} />
             case "productos":
-                return <ProductEdition products={props.products} />
+                return <ProductEdition loadProducts={props.loadProducts} products={props.products} />
             case "provedores":
                 return <ProvidersDisplay />
             case "clientes":
@@ -159,6 +159,10 @@ class POS extends React.Component {
     }
 
     componentDidMount() {
+        this.loadProducts();
+    }
+
+    loadProducts = () => {
         fetch("api/v0/products/all",{
             method:"GET",
             headers:{
@@ -167,7 +171,6 @@ class POS extends React.Component {
         }).then((response)=>{return response.json()}
         ).then((data)=>{
             if(data.success){
-                console.log(data);
                 this.setState({products:data.payload});
             }
         });
@@ -191,7 +194,7 @@ class POS extends React.Component {
         return (
             <div className="container-fluid">
                 <NavBar logout={this.logout} user={this.state.user} />
-                <MainContent products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
+                <MainContent loadProducts={this.loadProducts} products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
             </div>
         );
     }

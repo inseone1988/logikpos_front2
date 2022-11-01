@@ -78,6 +78,7 @@ function ProductEditor(props) {
                 </div>
             </div>
             <div className="col-12">
+                <button onClick={props.deleteProduct} className={`btn btn-danger me-3 ${props.product.id?"":"d-none"}`}>Eliminar</button>
                 <button onClick={props.saveProuctCallback} className="btn btn-sm btn-primary">Guardar</button>
             </div>
         </div>
@@ -87,6 +88,7 @@ function ProductEditor(props) {
 function ProductsInfo(props) {
 
     let rows = props.products ? props.products.map((p, i) => {
+        console.log(p);
         return (
             <tr onDoubleClick={()=>props.editProduct(p,i)} key={i}>
                 <td>{p.description}</td>
@@ -139,8 +141,8 @@ class ProductEdition extends React.Component {
         }).then(r=>r.json())
             .then(r=>{
                 if (r.success){
-                    if(!this.state.selectedProduct.index&&this.state.selectedProduct.index !==0)this.state.products.push(this.state.selectedProduct);
-                    this.setState({products:this.state.products,editing:false,selectedProduct:undefined,cardTitle:"Productos"});
+                    this.props.loadProducts();
+                    this.setState({editing:false,selectedProduct:undefined,cardTitle:"Productos"});
                     return;
                 }
                 if (!r.success){
@@ -163,7 +165,7 @@ class ProductEdition extends React.Component {
             case 'Productos':
                 return <ProductsInfo editProduct={this.setEditingProduct} products={this.state.products} />
             case 'Edicion de producto':
-                return <ProductEditor handleProductUpdate={this.handleProductUpdate} saveProuctCallback={this.productSaveCallback} product={this.state.selectedProduct} />
+                return <ProductEditor deleteProduct={this.deleteProduct} handleProductUpdate={this.handleProductUpdate} saveProuctCallback={this.productSaveCallback} product={this.state.selectedProduct} />
             default:
                 break;
         }
@@ -178,6 +180,40 @@ class ProductEdition extends React.Component {
 
     setEditMode = () => {
         this.setState({ editing: true, cardTitle: "Edicion de producto" });
+    }
+
+    deleteProduct = ()=>{
+        Swal.fire({
+            title: 'Estas seguro?',
+            text: "No podras revertir esta accion!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, eliminar!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("api/v0/products/"+this.state.selectedProduct.id,{
+                    method:"DELETE",
+                    headers : {
+                        'Content-Type':'application/json'
+                    }
+                }).then(r=>r.json())
+                    .then(r=>{
+                        if (r.success){
+                            this.props.loadProducts();
+                            return;
+                        }
+                        if (!r.success){
+                            Swal.fire(
+                                "Error",
+                                r.message,
+                                "error"
+                            );
+                        }
+                    })
+            }
+        })
     }
 
     render() {

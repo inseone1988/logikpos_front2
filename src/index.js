@@ -11,6 +11,7 @@ import AuthenticationAndRegister from './login';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
+    // <AuthenticationAndRegister/>
   <React.StrictMode>
     <AuthenticationAndRegister />
   </React.StrictMode>
