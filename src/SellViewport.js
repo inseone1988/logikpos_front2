@@ -10,7 +10,7 @@ import '@tarekraafat/autocomplete.js/dist/autoComplete';
 
 function ProductSearch(props) {
 
-    const rows = props.searchResult.length? props.searchResult.map((product, index) => {
+    const rows = props.searchResult.length ? props.searchResult.map((product, index) => {
         return (
             <tr key={index} onClick={() => props.selectProduct([product])}>
                 <td>{product.description}</td>
@@ -19,7 +19,7 @@ function ProductSearch(props) {
                 <td>{product.Price.price}</td>
             </tr>
         )
-    }): <tr><td className={"no-data-row"} colSpan={5}>No se encontraron resultados</td></tr>;
+    }) : <tr><td className={"no-data-row"} colSpan={5}>No se encontraron resultados</td></tr>;
 
     return (
         <div className="row">
@@ -27,23 +27,23 @@ function ProductSearch(props) {
                 <h5>Busqueda de articulos</h5>
                 <div className="input-group input-group-lg mb-3">
                     <span className="input-group-text">
-                        <i className="bi-search"/>
+                        <i className="bi-search" />
                     </span>
-                    <input onChange={(e)=>{props.search(e.target.value)}} autoFocus={true} id={"search"} type="text" className="form-control" placeholder="Buscar producto"/>
+                    <input onChange={(e) => { props.search(e.target.value) }} autoFocus={true} id={"search"} type="text" className="form-control" placeholder="Buscar producto" />
                 </div>
             </div>
             <div className="col-12">
                 <table className="table table-bordered table-stripped">
                     <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Codigo interno</th>
-                        <th>Sku</th>
-                        <th>Precio</th>
-                    </tr>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Codigo interno</th>
+                            <th>Sku</th>
+                            <th>Precio</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {rows}
+                        {rows}
                     </tbody>
                 </table>
             </div>
@@ -100,15 +100,15 @@ function ItemPanel(props) {
             <div className="col-12 table-wrapper">
                 <table className="table table-sm table-bordered">
                     <thead className="text-center text-gray">
-                    <tr>
-                        <th className="item-desc">Articulo</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                        <th className="item-total">Total</th>
-                    </tr>
+                        <tr>
+                            <th className="item-desc">Articulo</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th className="item-total">Total</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {rows}
+                        {rows}
                     </tbody>
                 </table>
             </div>
@@ -161,13 +161,18 @@ function CodeCapture(props) {
     return (
         <div className="row search-bar-end">
             <div className="col-12">
-                <button onClick={createFakeProducts} className="btn btn-sm btn-primary mb-3">Faketize</button>
                 <div className="input-group input-group-lg mb-3">
                     <button onClick={props.search} className="btn btn-primary">
                         <i className="bi-search"></i>
                     </button>
                     <input id={"code"} onKeyUp={getProduct.bind(this)} type="text" className="form-control"
-                           placeholder="Captura codigo de producto"/>
+                        placeholder="Captura codigo de producto" />
+                </div>
+                <div className="btn-group">
+                    <button className="btn btn-sm btn-primary">Cobrar [F2]</button>
+                    <button className="btn btn-sm btn-primary">IVA [F3]</button>
+                    <button className="btn btn-sm btn-primary">Cancelar orden [F4]</button>
+                    <button className="btn btn-sm btn-primary">Buscar [F10]</button>
                 </div>
             </div>
         </div>
@@ -177,7 +182,7 @@ function CodeCapture(props) {
 function SearchBar(props) {
     return (
         <div className="col-sm-12 col-md-8">
-            <CodeCapture search={props.search} products={props.products} onProductSelected={props.onProductSelected}/>
+            <CodeCapture search={props.search} products={props.products} onProductSelected={props.onProductSelected} />
         </div>
     );
 }
@@ -216,7 +221,7 @@ function CheckoutView(props) {
                 <div className="input-group input-group-lg mb-3">
                     <span className="input-group-text"><h4>Efectivo <i className="bi-currency-dollar"></i></h4></span>
                     <input autoFocus={true} onKeyUp={(e) => props.cashInputChange(e)} type="number" step={0.50}
-                           className="form-control"/>
+                        className="form-control" />
                 </div>
             </div>
             <div className="col-auto">
@@ -232,15 +237,15 @@ class UtilsView extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {contextMessage: this.props.message, context: this.props.context, change: 0.0};
+        this.state = { contextMessage: this.props.message, context: this.props.context, change: 0.0 };
     }
 
     updateChange = (event) => {
         let change = event.target.value - this.props.order.total;
         console.log(event.keyCode);
-        this.setState({change: change});
+        this.setState({ change: change });
         if (event.keyCode === 13) {
-            this.props.finalizeOrder({change: change, total: this.props.order.total, cash: event.target.value});
+            this.props.finalizeOrder({ change: change, total: this.props.order.total, cash: event.target.value });
         }
     }
 
@@ -250,7 +255,7 @@ class UtilsView extends React.Component {
                 return (<h4>Cantidad de articulos : {this.props.itemCount} {this.props.contextMessage}</h4>);
             case "checkout":
                 return <CheckoutView cashInputChange={this.updateChange} message={this.props.contextMessage}
-                                     total={this.props.total} change={this.state.change}/>;
+                    total={this.props.total} change={this.state.change} />;
         }
     }
 
@@ -318,7 +323,7 @@ class SellViewport extends React.Component {
                 case "F10":
                     switch (this.state.context) {
                         case "sell":
-                            this.setState({context:"sell"});
+                            this.setState({ context: "sell" });
                             break;
                     }
                 case 'Delete':
@@ -351,7 +356,7 @@ class SellViewport extends React.Component {
             } else {
                 state.contextMessage = "No hay articulos en la orden";
                 setTimeout(() => {
-                    this.setState({contextMessage: ""})
+                    this.setState({ contextMessage: "" })
                 }, 2000);
             }
             return state;
@@ -361,7 +366,7 @@ class SellViewport extends React.Component {
     updateOrderItems = (product, index) => {
         if (product.length) {
             this.setState((state) => {
-                if(state.context==="search") state.context = "sell";
+                if (state.context === "search") state.context = "sell";
                 if (index === undefined) {
                     let p = product[0];
                     p.quantity = 1;
@@ -392,7 +397,7 @@ class SellViewport extends React.Component {
 
     finalizeOrder = (paymentInfo) => {
         const order = this.state.order;
-        if(paymentInfo.cash < order.total){
+        if (paymentInfo.cash < order.total) {
             return Swal.fire({
                 title: ":(",
                 html: `<h4>El monto pagado es menor al total de la orden</h4>`,
@@ -418,13 +423,14 @@ class SellViewport extends React.Component {
                     console.log(data);
                     if (data.success) {
                         Swal.fire('Orden cobrada', `Folio : ${data.payload.orderId}`, 'success');
-                        this.setState({context: "sell", order: {total: 0, items: [], payments: []}});
+                        this.setState({ context: "sell", order: { total: 0, items: [], payments: [] } });
+                        this.props.loadProducts();
                     } else {
                         Swal.fire('Error', data.message, 'error');
                     }
                 });
             } else if (result.isDenied) {
-                this.setState({context: "sell"});
+                this.setState({ context: "sell" });
             }
         })
         order.payments.push(paymentInfo);
@@ -446,24 +452,24 @@ class SellViewport extends React.Component {
     }
 
     cancelOrder = () => {
-        this.setState({context: "sell", order: {total: 0, items: [], payments: []}, selectedItem: undefined});
+        this.setState({ context: "sell", order: { total: 0, items: [], payments: [] }, selectedItem: undefined });
     }
 
     selectItem = (item, index) => {
-        this.setState({selectedItem: {item, index}});
+        this.setState({ selectedItem: { item, index } });
     }
 
-    setSearchView = ()=> {
-        this.setState({context: "search"});
+    setSearchView = () => {
+        this.setState({ context: "search" });
     }
 
     searchProduct = (string) => {
         if (string.length > 3) {
             const result = this.props.products.filter((element) => {
                 string = string.toLowerCase();
-                return (element.internalCode.toLowerCase() === string || element.sku.toLowerCase() === string||element.description.toLowerCase().includes(string));
+                return (element.internalCode.toLowerCase() === string || element.sku.toLowerCase() === string || element.description.toLowerCase().includes(string));
             });
-            this.setState({searchResult: result});
+            this.setState({ searchResult: result });
         }
     }
 
@@ -471,16 +477,16 @@ class SellViewport extends React.Component {
         switch (this.state.context) {
             case "sell":
                 return (<div className="row">
-                    <LCDDisplay order={this.state.order}/>
+                    <LCDDisplay order={this.state.order} />
                     <SearchBar search={this.setSearchView} order={this.state.order} products={this.props.products}
-                               onProductSelected={this.updateOrderItems}/>
+                        onProductSelected={this.updateOrderItems} />
                     <ItemPanel onSelectItem={this.selectItem} deleteIte={this.deleteItem}
-                               modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}
-                               order={this.state.order}/>
+                        modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}
+                        order={this.state.order} />
                     <UtilsView finalizeOrder={this.finalizeOrder}
-                               onCheckOutConfirm={this.finalizeOrder} order={this.state.order}
-                               contextMessage={this.state.contextMessage} itemCount={this.state.order.items.length}
-                               context={this.state.context}/>
+                        onCheckOutConfirm={this.finalizeOrder} order={this.state.order}
+                        contextMessage={this.state.contextMessage} itemCount={this.state.order.items.length}
+                        context={this.state.context} />
                 </div>)
             case "search":
                 return <ProductSearch
@@ -489,19 +495,19 @@ class SellViewport extends React.Component {
                     selectProduct={this.updateOrderItems}
                     updateOrderItems={this.updateOrderItems}
                 />
-                default:
+            default:
                 return (<div className="row">
-                <LCDDisplay order={this.state.order}/>
-                <SearchBar search={this.setSearchView} order={this.state.order} products={this.props.products}
-                           onProductSelected={this.updateOrderItems}/>
-                <ItemPanel onSelectItem={this.selectItem} deleteIte={this.deleteItem}
-                           modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}
-                           order={this.state.order}/>
-                <UtilsView finalizeOrder={this.finalizeOrder}
-                           onCheckOutConfirm={this.finalizeOrder} order={this.state.order}
-                           contextMessage={this.state.contextMessage} itemCount={this.state.order.items.length}
-                           context={this.state.context}/>
-            </div>)
+                    <LCDDisplay order={this.state.order} />
+                    <SearchBar search={this.setSearchView} order={this.state.order} products={this.props.products}
+                        onProductSelected={this.updateOrderItems} />
+                    <ItemPanel onSelectItem={this.selectItem} deleteIte={this.deleteItem}
+                        modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}
+                        order={this.state.order} />
+                    <UtilsView finalizeOrder={this.finalizeOrder}
+                        onCheckOutConfirm={this.finalizeOrder} order={this.state.order}
+                        contextMessage={this.state.contextMessage} itemCount={this.state.order.items.length}
+                        context={this.state.context} />
+                </div>)
         }
     }
 

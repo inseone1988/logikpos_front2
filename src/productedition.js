@@ -132,8 +132,9 @@ class ProductEdition extends React.Component {
     }
 
     productSaveCallback = ()=>{
-        fetch("api/v0/products",{
-            method:"POST",
+        let updateProduct = this.state.selectedProduct.id?`/${this.state.selectedProduct.id}`:"";
+        fetch("api/v0/products" + updateProduct,{
+            method:updateProduct===""?"POST":"PUT",
             headers : {
                 'Content-Type':'application/json'
             },
@@ -202,6 +203,7 @@ class ProductEdition extends React.Component {
                     .then(r=>{
                         if (r.success){
                             this.props.loadProducts();
+                            this.setState({editing:false,selectedProduct:undefined,cardTitle:"Productos"});
                             return;
                         }
                         if (!r.success){

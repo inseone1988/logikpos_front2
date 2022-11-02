@@ -117,7 +117,7 @@ function MainContent(props) {
     const whatToDisplay = () => {
         switch (props.currentview) {
             case "venta":
-                return <SellViewport products={props.products} />
+                return <SellViewport loadProducts={props.loadProducts} products={props.products} />
             case "productos":
                 return <ProductEdition loadProducts={props.loadProducts} products={props.products} />
             case "provedores":
