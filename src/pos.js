@@ -75,39 +75,68 @@ function SideBar(props) {
                     props.itemClick("venta")
                 }} className="list-group-item list-group-item-action">
                     <i className="bi-shop mr-3"></i>
-                      &nbsp;Venta
+                    &nbsp;Venta
                 </button>
-                <button onClick={() => {
-                    props.itemClick("productos")
-                }} className="list-group-item list-group-item-action">
-                    <i className="bi-box mr-3"></i>
-                    &nbsp;Productos
-                </button>
-                <button onClick={() => {
-                    props.itemClick("provedores")
-                }} className="list-group-item list-group-item-action">
-                    <i className="bi-truck mr-3"></i>
-                    &nbsp;Proveedores
-                </button>
-                <button onClick={() => {
-                    props.itemClick("clientes")
-                }} className="list-group-item list-group-item-action">
-                    <i className="bi-people mr-3"></i>
-                    &nbsp;
-                    Clientes
-                </button>
-                <button onClick={()=>props.itemClick("reporteria")} className="list-group-item list-group-item-action">
-                    <i className="bi-bar-chart-line mr-3"></i>&nbsp;
-                    Reporteria
-                </button>
-                <button onClick={()=>props.itemClick("usuarios")} className="list-group-item list-group-item-action">
-                    <i className="bi-person-lines-fill mr-3"></i>&nbsp;
-                    Usuarios
-                </button>
-                <button onClick={()=>props.itemClick("configuration")} className="list-group-item list-group-item-action">
-                    <i className="bi-gear-fill mr-3"></i>&nbsp;
-                    Configuracion
-                </button>
+                {(() => {
+                    if (props.user.role === "CLIENT" || props.user.permissions.products) {
+                        return <button onClick={() => {
+                            props.itemClick("productos")
+                        }} className="list-group-item list-group-item-action">
+                            <i className="bi-box mr-3"></i>
+                            &nbsp;Productos
+                        </button>
+                    }
+                })()}
+                {(()=>{
+                    if(props.user.role === "CLIENT" || props.user.permissions.providers){
+                        return <button onClick={() => {
+                            props.itemClick("provedores")
+                        }} className="list-group-item list-group-item-action">
+                            <i className="bi-truck mr-3"></i>
+                            &nbsp;Proveedores
+                        </button>
+                    }
+                })()}
+                {(() => {
+                    if (props.user.role === "CLIENT" || props.user.permissions.customers) {
+                        return <button onClick={() => {
+                            props.itemClick("clientes")
+                        }} className="list-group-item list-group-item-action">
+                            <i className="bi-people mr-3"></i>
+                            &nbsp;Clientes
+                        </button>
+                    }
+                })()}
+                {(()=>{
+                    if(props.user.role === "CLIENT" || props.user.permissions.reports){
+                        return <button onClick={() => {
+                            props.itemClick("reporteria")
+                        }} className="list-group-item list-group-item-action">
+                            <i className="bi-bar-chart-line mr-3"></i>
+                            &nbsp;Reporteria
+                        </button>
+                    }
+                })()}
+                {(()=>{
+                    if(props.user.role === "CLIENT" || props.user.permissions.users){
+                        return <button onClick={() => {
+                            props.itemClick("usuarios")
+                        }} className="list-group-item list-group-item-action">
+                            <i className="bi-person-lines-fill mr-3"></i>
+                            &nbsp;Usuarios
+                        </button>
+                    }
+                })()}
+                {(()=>{
+                    if(props.user.role === "CLIENT" || props.user.permissions.config){
+                        return <button onClick={() => {
+                            props.itemClick("configuracion")
+                        }} className="list-group-item list-group-item-action">
+                            <i className="bi-gear-fill mr-3"></i>
+                            &nbsp;Configuracion
+                        </button>
+                    }
+                })()}
             </div>
         </div>
     );
@@ -126,7 +155,7 @@ function MainContent(props) {
             case "clientes":
                 return <CustomersView />
             case "reporteria":
-                Swal.fire(';) Work in progress...','Preparate para las nuevas sorpresas. Pronto.',"info");
+                Swal.fire(';) Work in progress...', 'Preparate para las nuevas sorpresas. Pronto.', "info");
                 return <SellViewport />
             case "usuarios":
                 return <UsersView />
@@ -151,7 +180,7 @@ class POS extends React.Component {
 
     constructor(props, context) {
         super(props, context);
-        this.state = {user:this.props.user, currentview: "venta"};
+        this.state = { user: this.props.user, currentview: "venta" };
     }
 
     changeContext = (view) => {
@@ -164,28 +193,28 @@ class POS extends React.Component {
     }
 
     loadProducts = () => {
-        fetch("api/v0/products/all",{
-            method:"GET",
-            headers:{
-                "Content-Type":"application/json"
+        fetch("api/v0/products/all", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
             }
-        }).then((response)=>{return response.json()}
-        ).then((data)=>{
-            if(data.success){
-                this.setState({products:data.payload});
+        }).then((response) => { return response.json() }
+        ).then((data) => {
+            if (data.success) {
+                this.setState({ products: data.payload });
             }
         });
     }
 
-    logout (){
-        fetch("api/v0/users/logout",{
-            method:"GET",
-            headers:{
-                "Content-Type":"application/json"
+    logout() {
+        fetch("api/v0/users/logout", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
             }
-        }).then((response)=>{return response.json()}
-        ).then((data)=>{
-            if(data.success){
+        }).then((response) => { return response.json() }
+        ).then((data) => {
+            if (data.success) {
                 window.location.reload();
             }
         });
@@ -195,7 +224,7 @@ class POS extends React.Component {
         return (
             <div className="container-fluid">
                 <NavBar logout={this.logout} user={this.state.user} />
-                <MainContent loadProducts={this.loadProducts} products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
+                <MainContent user={this.props.user} loadProducts={this.loadProducts} products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
             </div>
         );
     }

@@ -162,17 +162,17 @@ function CodeCapture(props) {
         <div className="row search-bar-end">
             <div className="col-12">
                 <div className="input-group input-group-lg mb-3">
-                    <button onClick={props.search} className="btn btn-primary">
+                    <button onClick={props.setSearchView} className="btn btn-primary">
                         <i className="bi-search"></i>
                     </button>
                     <input id={"code"} onKeyUp={getProduct.bind(this)} type="text" className="form-control"
                         placeholder="Captura codigo de producto" />
                 </div>
                 <div className="btn-group">
-                    <button className="btn btn-sm btn-primary">Cobrar [F2]</button>
-                    <button className="btn btn-sm btn-primary">IVA [F3]</button>
-                    <button className="btn btn-sm btn-primary">Cancelar orden [F4]</button>
-                    <button className="btn btn-sm btn-primary">Buscar [F10]</button>
+                    <button onClick={props.cobrar} className="btn btn-sm btn-primary">Cobrar [F2]</button>
+                    <button onClick={props.iva} className="btn btn-sm btn-primary">IVA [F3]</button>
+                    <button onClick={props.cancel} className="btn btn-sm btn-primary">Cancelar orden [F4]</button>
+                    <button onClick={props.setSearchView} className="btn btn-sm btn-primary">Buscar [F10]</button>
                 </div>
             </div>
         </div>
@@ -182,7 +182,7 @@ function CodeCapture(props) {
 function SearchBar(props) {
     return (
         <div className="col-sm-12 col-md-8">
-            <CodeCapture search={props.search} products={props.products} onProductSelected={props.onProductSelected} />
+            <CodeCapture cobrar={props.checkout} iva={props.tax} cancel={props.cancel} setSearchView={props.setSearchView} search={props.search} products={props.products} onProductSelected={props.onProductSelected} />
         </div>
     );
 }
@@ -306,11 +306,8 @@ class SellViewport extends React.Component {
                 case "F3":
                     switch (this.state.context) {
                         case "sell":
-                            this.setState((state) => {
-                                console.log(state);
-                                state.order.tax = !state.order.tax;
-                                return this.updateOrder(state);
-                            })
+                            this.applyTax();
+                            break;
                     }
                     break;
                 case "F4":
@@ -336,6 +333,14 @@ class SellViewport extends React.Component {
 
             }
         }
+    }
+
+    applyTax = ()=>{
+        this.setState((state) => {
+            console.log(state);
+            state.order.tax = !state.order.tax;
+            return this.updateOrder(state);
+        })
     }
 
     updateOrder = (state) => {
@@ -478,7 +483,7 @@ class SellViewport extends React.Component {
             case "sell":
                 return (<div className="row">
                     <LCDDisplay order={this.state.order} />
-                    <SearchBar search={this.setSearchView} order={this.state.order} products={this.props.products}
+                    <SearchBar checkout={this.handleCheckout} tax={this.applyTax} cancel={this.cancelOrder} search={this.searchProduct}  setSearchView={this.setSearchView} order={this.state.order} products={this.props.products}
                         onProductSelected={this.updateOrderItems} />
                     <ItemPanel onSelectItem={this.selectItem} deleteIte={this.deleteItem}
                         modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}
