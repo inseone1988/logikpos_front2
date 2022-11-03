@@ -68,6 +68,7 @@ function SideBar(props) {
     return (
         <div className="row d-flex justify-content-center">
             <div className="col-12 logo-image">
+                <img src="logo.svg" alt="logo" className="img-fluid" />
             </div>
             <div className="list-group mt-3">
                 <button onClick={() => {

@@ -15,25 +15,25 @@ function ProductEditor(props) {
             <div className="col-xxsm-12 col-sm-12">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Descripcion</label>
-                    <input defaultValue={props.product?props.product.description:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="description" type="text" className="form-control" />
+                    <input defaultValue={props.product ? props.product.description : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="description" type="text" className="form-control" />
                 </div>
             </div>
             <div className='col-xxsm-12 col-sm-6 col-md-4'>
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Codigo interno</label>
-                    <input defaultValue={props.product?props.product.internalCode:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="internalCode" type="text" className="form-control" />
+                    <input defaultValue={props.product ? props.product.internalCode : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="internalCode" type="text" className="form-control" />
                 </div>
             </div>
             <div className='col-xxsm-12 col-sm-6 col-md-4'>
                 <div className="form-group">
                     <label htmlFor="" className="form-label">SKU</label>
-                    <input defaultValue={props.product?props.product.sku:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="sku" type="text" className="form-control" />
+                    <input defaultValue={props.product ? props.product.sku : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="sku" type="text" className="form-control" />
                 </div>
             </div>
             <div className="col-xxsm-12 col-sm-6 col-md-4 mb-3">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Precio</label>
-                    <input defaultValue={props.product?props.product.Price.price:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="Price" type="text" className="form-control" />
+                    <input defaultValue={props.product ? props.product.Price.price : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="Price" type="text" className="form-control" />
                 </div>
             </div>
             <div className="col-12 mb-3">
@@ -48,19 +48,19 @@ function ProductEditor(props) {
                                     <div className="col-sm-12 col-md-4">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Existencias</label>
-                                            <input defaultValue={props.product?props.product.Inventory.currentSupply:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="currentAmmount" type="text" className="form-control" />
+                                            <input defaultValue={props.product ? props.product.Inventory.currentSupply : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="currentAmmount" type="text" className="form-control" />
                                         </div>
                                     </div>
                                     <div className="col-sm-12 col-md-4">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Existencias minimas</label>
-                                            <input defaultValue={props.product?props.product.Inventory.minExistences:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="minimalExistences" type="text" className="form-control" />
+                                            <input defaultValue={props.product ? props.product.Inventory.minExistences : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="minimalExistences" type="text" className="form-control" />
                                         </div>
                                     </div>
                                     <div className="col-md-4 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Proveedor</label>
-                                            <select defaultValue={props.product?props.product.ProviderId:"1"} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="ProviderId" type="text" className="form-select">
+                                            <select defaultValue={props.product ? props.product.ProviderId : "1"} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="ProviderId" type="text" className="form-select">
                                                 <option value="1">Provedor Generico</option>
                                             </select>
                                         </div>
@@ -68,7 +68,7 @@ function ProductEditor(props) {
                                     <div className="col-md-4 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Costo</label>
-                                            <input defaultValue={props.product?props.product.Inventory.lastCost:""} onChange={(e)=>{props.handleProductUpdate(e.target.value,e.target.name)}} name="cost" type="text" className="form-control"/>
+                                            <input defaultValue={props.product ? props.product.Inventory.lastCost : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="cost" type="text" className="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -78,7 +78,7 @@ function ProductEditor(props) {
                 </div>
             </div>
             <div className="col-12">
-                <button onClick={props.deleteProduct} className={`btn btn-danger me-3 ${props.product.id?"":"d-none"}`}>Eliminar</button>
+                <button onClick={props.deleteProduct} className={`btn btn-danger me-3 ${props.product.id ? "" : "d-none"}`}>Eliminar</button>
                 <button onClick={props.saveProuctCallback} className="btn btn-sm btn-primary">Guardar</button>
             </div>
         </div>
@@ -90,13 +90,13 @@ function ProductsInfo(props) {
     let rows = props.products ? props.products.map((p, i) => {
         console.log(p);
         return (
-            <tr onDoubleClick={()=>props.editProduct(p,i)} key={i}>
+            <tr onDoubleClick={() => props.editProduct(p, i)} key={i}>
                 <td>{p.description}</td>
                 <td>{p.internalCode}</td>
                 <td>{p.sku}</td>
                 <td>{p.Price.price}</td>
-                <td>{p.Provider?p.Provider.social_name:"Proveedor generico"}</td>
-                <td>{p.Inventory?p.Inventory.currentSupply:"Producto no maneja inventario"}</td>
+                <td>{p.Provider ? p.Provider.social_name : "Proveedor generico"}</td>
+                <td>{p.Inventory ? p.Inventory.currentSupply : "Producto no maneja inventario"}</td>
             </tr>);
     }) : (<tr><td colSpan={6} className='no-data-row'>Toma el control de tu negocio e inicia agregando productos a tu inventario</td></tr>);
 
@@ -131,22 +131,22 @@ class ProductEdition extends React.Component {
         this.state = { products: props.products, editing: false, selectedProduct: undefined, cardTitle: "Productos" };
     }
 
-    productSaveCallback = ()=>{
-        let updateProduct = this.state.selectedProduct.id?`/${this.state.selectedProduct.id}`:"";
-        fetch("api/v0/products" + updateProduct,{
-            method:updateProduct===""?"POST":"PUT",
-            headers : {
-                'Content-Type':'application/json'
+    productSaveCallback = () => {
+        let updateProduct = this.state.selectedProduct.id ? `/${this.state.selectedProduct.id}` : "";
+        fetch("api/v0/products" + updateProduct, {
+            method: updateProduct === "" ? "POST" : "PUT",
+            headers: {
+                'Content-Type': 'application/json'
             },
-            body : JSON.stringify(this.state.selectedProduct)
-        }).then(r=>r.json())
-            .then(r=>{
-                if (r.success){
+            body: JSON.stringify(this.state.selectedProduct)
+        }).then(r => r.json())
+            .then(r => {
+                if (r.success) {
                     this.props.loadProducts();
-                    this.setState({editing:false,selectedProduct:undefined,cardTitle:"Productos"});
+                    this.setState({ editing: false, selectedProduct: undefined, cardTitle: "Productos" });
                     return;
                 }
-                if (!r.success){
+                if (!r.success) {
                     Swal.fire(
                         "Error",
                         r.message,
@@ -156,9 +156,21 @@ class ProductEdition extends React.Component {
             })
     }
 
-    handleProductUpdate = (v,n)=>{
+    handleProductUpdate = (v, n) => {
         if (!this.state.selectedProduct) this.state.selectedProduct = {};
-        this.state.selectedProduct[n] = v;
+        this.setState((state) => {
+            if (n === "currentAmmount" || n === "minimalExistences" || n === "cost" || n === "ProviderId") {
+                if (!state.selectedProduct.Inventory) state.selectedProduct.Inventory = {};
+                state.selectedProduct.Inventory[n] = v;
+            }
+            else if (n === "price") {
+                if (!state.selectedProduct.Price) state.selectedProduct.Price = {};
+                state.selectedProduct.Price[n] = v;
+            }else{
+                state.selectedProduct[n] = v;
+            }
+            return state;
+        });
     }
 
     whatToDisplay() {
@@ -172,10 +184,10 @@ class ProductEdition extends React.Component {
         }
     }
 
-    setEditingProduct = (p,i)=> {
+    setEditingProduct = (p, i) => {
         //if(p){p.index = i};
-        p?p.index=i:p.index=0;
-        this.setState({ editing: true,selectedProduct:p?p:undefined,cardTitle:"Edicion de producto"});
+        p ? p.index = i : p.index = 0;
+        this.setState({ editing: true, selectedProduct: p ? p : undefined, cardTitle: "Edicion de producto" });
 
     }
 
@@ -183,7 +195,7 @@ class ProductEdition extends React.Component {
         this.setState({ editing: true, cardTitle: "Edicion de producto" });
     }
 
-    deleteProduct = ()=>{
+    deleteProduct = () => {
         Swal.fire({
             title: 'Estas seguro?',
             text: "No podras revertir esta accion!",
@@ -194,19 +206,19 @@ class ProductEdition extends React.Component {
             confirmButtonText: 'Si, eliminar!'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch("api/v0/products/"+this.state.selectedProduct.id,{
-                    method:"DELETE",
-                    headers : {
-                        'Content-Type':'application/json'
+                fetch("api/v0/products/" + this.state.selectedProduct.id, {
+                    method: "DELETE",
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
-                }).then(r=>r.json())
-                    .then(r=>{
-                        if (r.success){
+                }).then(r => r.json())
+                    .then(r => {
+                        if (r.success) {
                             this.props.loadProducts();
-                            this.setState({editing:false,selectedProduct:undefined,cardTitle:"Productos"});
+                            this.setState({ editing: false, selectedProduct: undefined, cardTitle: "Productos" });
                             return;
                         }
-                        if (!r.success){
+                        if (!r.success) {
                             Swal.fire(
                                 "Error",
                                 r.message,
