@@ -11,10 +11,10 @@ import AuthenticationAndRegister from './login';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-    // <AuthenticationAndRegister/>
-  <React.StrictMode>
-    <AuthenticationAndRegister />
-  </React.StrictMode>
+     <AuthenticationAndRegister/>
+  //<React.StrictMode>
+  //  <AuthenticationAndRegister />
+  //</React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

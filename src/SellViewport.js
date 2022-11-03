@@ -12,7 +12,7 @@ function ProductSearch(props) {
 
     const rows = props.searchResult.length ? props.searchResult.map((product, index) => {
         return (
-            <tr key={index} onClick={() => props.selectProduct([product])}>
+            <tr className={`${product.Inventory.currentSupply < product.Inventory.minimalExistences?"bg-warning":""}`} key={index} onClick={() => props.selectProduct([product])}>
                 <td>{product.description}</td>
                 <td>{product.internalCode}</td>
                 <td>{product.sku}</td>
@@ -323,7 +323,7 @@ class SellViewport extends React.Component {
                 case "F10":
                     switch (this.state.context) {
                         case "sell":
-                            this.setState({ context: "sell" });
+                            this.setSearchView();
                             break;
                     }
                 case 'Delete':

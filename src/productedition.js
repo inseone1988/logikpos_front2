@@ -33,7 +33,7 @@ function ProductEditor(props) {
             <div className="col-xxsm-12 col-sm-6 col-md-4 mb-3">
                 <div className="form-group">
                     <label htmlFor="" className="form-label">Precio</label>
-                    <input defaultValue={props.product ? props.product.Price.price : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="Price" type="text" className="form-control" />
+                    <input defaultValue={props.product ? props.product.Price.price : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="price" type="text" className="form-control" />
                 </div>
             </div>
             <div className="col-12 mb-3">
@@ -48,7 +48,7 @@ function ProductEditor(props) {
                                     <div className="col-sm-12 col-md-4">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Existencias</label>
-                                            <input defaultValue={props.product ? props.product.Inventory.currentSupply : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="currentAmmount" type="text" className="form-control" />
+                                            <input defaultValue={props.product ? props.product.Inventory.currentSupply : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="currentSupply" type="text" className="form-control" />
                                         </div>
                                     </div>
                                     <div className="col-sm-12 col-md-4">
@@ -68,7 +68,7 @@ function ProductEditor(props) {
                                     <div className="col-md-4 col-sm-12">
                                         <div className="form-group">
                                             <label htmlFor="" className="form-label">Costo</label>
-                                            <input defaultValue={props.product ? props.product.Inventory.lastCost : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="cost" type="text" className="form-control" />
+                                            <input defaultValue={props.product ? props.product.Inventory.lastCost : ""} onChange={(e) => { props.handleProductUpdate(e.target.value, e.target.name) }} name="lastCost" type="text" className="form-control" />
                                         </div>
                                     </div>
                                 </div>
@@ -128,7 +128,7 @@ class ProductEdition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { products: props.products, editing: false, selectedProduct: undefined, cardTitle: "Productos" };
+        this.state = { products: props.products, editing: false, selectedProduct: {Price:{},Inventory:{}}, cardTitle: "Productos" };
     }
 
     productSaveCallback = () => {
@@ -143,7 +143,7 @@ class ProductEdition extends React.Component {
             .then(r => {
                 if (r.success) {
                     this.props.loadProducts();
-                    this.setState({ editing: false, selectedProduct: undefined, cardTitle: "Productos" });
+                    this.setState({ editing: false, selectedProduct: {Price:{},Inventory:{}}, cardTitle: "Productos" });
                     return;
                 }
                 if (!r.success) {
@@ -157,9 +157,8 @@ class ProductEdition extends React.Component {
     }
 
     handleProductUpdate = (v, n) => {
-        if (!this.state.selectedProduct) this.state.selectedProduct = {};
         this.setState((state) => {
-            if (n === "currentAmmount" || n === "minimalExistences" || n === "cost" || n === "ProviderId") {
+            if (n === "currentSupply" || n === "minimalExistences" || n === "lastCost" || n === "ProviderId") {
                 if (!state.selectedProduct.Inventory) state.selectedProduct.Inventory = {};
                 state.selectedProduct.Inventory[n] = v;
             }
@@ -176,7 +175,7 @@ class ProductEdition extends React.Component {
     whatToDisplay() {
         switch (this.state.cardTitle) {
             case 'Productos':
-                return <ProductsInfo editProduct={this.setEditingProduct} products={this.state.products} />
+                return <ProductsInfo editProduct={this.setEditingProduct} products={this.props.products} />
             case 'Edicion de producto':
                 return <ProductEditor deleteProduct={this.deleteProduct} handleProductUpdate={this.handleProductUpdate} saveProuctCallback={this.productSaveCallback} product={this.state.selectedProduct} />
             default:
@@ -185,7 +184,6 @@ class ProductEdition extends React.Component {
     }
 
     setEditingProduct = (p, i) => {
-        //if(p){p.index = i};
         p ? p.index = i : p.index = 0;
         this.setState({ editing: true, selectedProduct: p ? p : undefined, cardTitle: "Edicion de producto" });
 
@@ -215,7 +213,7 @@ class ProductEdition extends React.Component {
                     .then(r => {
                         if (r.success) {
                             this.props.loadProducts();
-                            this.setState({ editing: false, selectedProduct: undefined, cardTitle: "Productos" });
+                            this.setState({ editing: false, selectedProduct: {Price:{},Inventory:{}}, cardTitle: "Productos" });
                             return;
                         }
                         if (!r.success) {
@@ -225,7 +223,7 @@ class ProductEdition extends React.Component {
                                 "error"
                             );
                         }
-                    })
+                    });
             }
         })
     }
