@@ -129,6 +129,16 @@ function ExistentCustomersView(props) {
                 </button>
             </div>
             <div className="col-12">
+                <div className="row">
+                    <div className="col-12">
+                        <div className="input-group mb-3">
+                            <span className="input-group-text bg-main">
+                                <i className="bi-search"></i>
+                            </span>
+                            <input onChange={(e)=>props.filterCustomers(e)} type="text" className="form-control" placeholder="Buscar cliente"/>
+                        </div>
+                    </div>
+                </div>
                 <table className="table table-stripped table-bordered table-hover">
                     <thead>
                     <tr>
@@ -151,27 +161,7 @@ class CustomersView extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {customers: [], editing: false, selectedCustomer: undefined, cardTitle: "Clientes"}
-    }
-
-    componentDidMount() {
-        this.getCustomers();
-    }
-
-    getCustomers() {
-        fetch("/api/v0/customers", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
-        }).then((response) => {
-            return response.json();
-        }).then((data) => {
-            this.setState({customers: data.payload});
-        }).catch((error) => {
-            console.log(error);
-        });
+        this.state = {customers: this.props.customers, editing: false, selectedCustomer: undefined, cardTitle: "Clientes"}
     }
 
     setEditMode = (selectedCustomer, index) => {
@@ -213,7 +203,7 @@ class CustomersView extends React.Component {
                 }).then((data) => {
                     if(data.success){
                         this.setState({editing: false, selectedCustomer: undefined, cardTitle: "Clientes"});
-                        this.getCustomers();
+                        this.props.loadCustomers();
                         Swal.fire(
                             'Eliminado!',
                             'El cliente ha sido eliminado',
@@ -232,9 +222,11 @@ class CustomersView extends React.Component {
             case "Clientes":
                 return <ExistentCustomersView customers={this.state.customers}
                                               selectedCustomer={this.state.selectedCustomer}
-                                              setEditMode={this.setEditMode}/>
+                                              setEditMode={this.setEditMode}
+                                              filterCustomers={this.filterCustomers}/>
             case "Editar cliente":
-                return <CustomerEditor onDelete={this.deleteCustomer} onSave={this.onCustomerSave} onFormChangeBind={this.updateCustomer}
+                return <CustomerEditor onDelete={this.deleteCustomer} onSave={this.onCustomerSave} 
+                                       onFormChangeBind={this.updateCustomer}
                                        customer={this.state.selectedCustomer}/>;
             case "Informacion de cliente":
                 return <CustomerInfo selectedCustomer={this.state.selectedCustomer}/>;
@@ -259,22 +251,20 @@ class CustomersView extends React.Component {
                 this.setState((state)=>{
                     state.cardTitle = "Clientes";
                     state.editing = false;
-                    if (updateCustomer!==""){
-                        state.customers = state.customers.map((e, i) => {
-                            if (e.id === data.payload.id) {
-                                return data.payload;
-                            }
-                            return e;
-                        });
-                    }else{
-                        state.customers.push(data.payload);
-                    }
                     return state;
                 });
+                this.props.loadCustomers();
             }
         }).catch((error) => {
             console.log(error);
         });
+    }
+
+    filterCustomers = (e) => {
+        let customers = this.props.customers.filter((c) => {
+            return c.fullName.toLowerCase().includes(e.target.value.toLowerCase());
+        });
+        this.setState({customers: customers});
     }
 
     render() {

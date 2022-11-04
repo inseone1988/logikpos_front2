@@ -3,9 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './styles.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import $ from 'jquery';
-import 'moment/dist/locale/es-mx';
-import moment from 'moment/';
+import 'moment/locale/es-mx';
+import moment from 'moment';
 import 'sweetalert2/dist/sweetalert2.css';
 import Swal from 'sweetalert2';
 
@@ -17,10 +16,12 @@ import UsersView from "./users";
 
 import logo from './text10.png';
 
+moment.locale('es-mx');
+
 class Clock extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
+    constructor(props) {
+        super(props);
         this.state = { currentTime: undefined };
     }
 
@@ -51,7 +52,7 @@ function NavBar(props) {
                     <img className='img-fluid' style={{maxWidth:"100px"}} src={logo} alt="logo" />
                 </a>
                 <ul className="nav justify-content-end text-center">
-                        <li className="nav-item me-3 mt-1">
+                        <li className="nav-item me-3 mt-1 fw-bold">
                             <Clock />
                         </li>
                         <li className={"nav-item"}>
@@ -109,22 +110,22 @@ function SideBar(props) {
                     }
                 })()}
                 {(()=>{
-                    if(props.user.role === "CLIENT" || props.user.permissions.reports){
-                        return <button onClick={() => {
-                            props.itemClick("reporteria")
-                        }} className="list-group-item list-group-item-action">
-                            <i className="bi-bar-chart-line mr-3"></i>
-                            &nbsp;Reporteria
-                        </button>
-                    }
-                })()}
-                {(()=>{
                     if(props.user.role === "CLIENT" || props.user.permissions.users){
                         return <button onClick={() => {
                             props.itemClick("usuarios")
                         }} className="list-group-item list-group-item-action">
                             <i className="bi-person-lines-fill mr-3"></i>
                             &nbsp;Usuarios
+                        </button>
+                    }
+                })()}
+                {(()=>{
+                    if(props.user.role === "CLIENT" || props.user.permissions.reports){
+                        return <button onClick={() => {
+                            props.itemClick("reporteria")
+                        }} className="list-group-item list-group-item-action">
+                            <i className="bi-bar-chart-line mr-3"></i>
+                            &nbsp;Reporteria
                         </button>
                     }
                 })()}
@@ -152,14 +153,14 @@ function MainContent(props) {
             case "productos":
                 return <ProductEdition loadProducts={props.loadProducts} products={props.products} />
             case "provedores":
-                return <ProvidersDisplay />
+                return <ProvidersDisplay loadProviders={props.loadProviders} providers={props.providers} />
             case "clientes":
-                return <CustomersView />
+                return <CustomersView customers={props.customers} loadCustomers={props.loadCustomers} />
             case "reporteria":
                 Swal.fire(';) Work in progress...', 'Preparate para las nuevas sorpresas. Pronto.', "info");
                 return <SellViewport />
             case "usuarios":
-                return <UsersView />
+                return <UsersView users={props.users} loadUsers={props.loadUsers}/>
             default:
                 break;
         }
@@ -179,9 +180,9 @@ function MainContent(props) {
 
 class POS extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
-        this.state = { user: this.props.user, currentview: "venta" };
+    constructor(props) {
+        super(props);
+        this.state = {products:[],customers:[],providers:[],users:[], user: this.props.user, currentview: "venta" };
     }
 
     changeContext = (view) => {
@@ -191,6 +192,9 @@ class POS extends React.Component {
 
     componentDidMount() {
         this.loadProducts();
+        this.loadProviders();
+        this.loadCustomers();
+        this.loadUsers();
     }
 
     loadProducts = () => {
@@ -203,6 +207,48 @@ class POS extends React.Component {
         ).then((data) => {
             if (data.success) {
                 this.setState({ products: data.payload });
+            }
+        });
+    }
+
+    loadProviders = () => {
+        fetch("api/v0/providers", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((response) => { return response.json() }
+        ).then((data) => {
+            if (data.success) {
+                this.setState({ providers: data.payload });
+            }
+        });
+    }
+
+    loadCustomers=()=>{
+        fetch("api/v0/customers", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((response) => { return response.json() }
+        ).then((data) => {
+            if (data.success) {
+                this.setState({ customers: data.payload });
+            }
+        });
+    }
+
+    loadUsers = ()=>{
+        fetch("api/v0/users", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then((response) => { return response.json() }
+        ).then((data) => {
+            if (data.success) {
+                this.setState({ users: data.payload });
             }
         });
     }
@@ -225,7 +271,7 @@ class POS extends React.Component {
         return (
             <div className="container-fluid">
                 <NavBar logout={this.logout} user={this.state.user} />
-                <MainContent user={this.props.user} loadProducts={this.loadProducts} products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
+                <MainContent users={this.state.users} loadUsers={this.loadUsers} customers={this.state.customers} loadCustomers={this.loadCustomers} providers={this.state.providers} loadProviders={this.loadProviders} user={this.props.user} loadProducts={this.loadProducts} products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
             </div>
         );
     }

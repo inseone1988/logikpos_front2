@@ -127,6 +127,14 @@ function ExistentProvidersDisplay(props) {
         <td className="no-data-row" colSpan="3">No hay proveedores registrados</td>
     </tr>)
 
+    function filterProviders(e){
+        const filter = e.target.value;
+        const filteredProviders = props.providers.filter((e) => {
+            return e.name.toLowerCase().includes(filter.toLowerCase()) || e.last_name.toLowerCase().includes(filter.toLowerCase()) || e.social_name.toLowerCase().includes(filter.toLowerCase());
+        })
+        props.onProviderFilter(filteredProviders);
+    }
+
     return (
         <div className="col">
             <div className="card">
@@ -140,7 +148,7 @@ function ExistentProvidersDisplay(props) {
                         <div className="col">
                             <div className="input-group mb3">
                                 <span className="input-group-text"><i className="bi-search"/></span>
-                                <input type="text" className="form-control"/>
+                                <input onChange={(e)=>filterProviders(e)} type="text" className="form-control"/>
                             </div>
                         </div>
                     </div>
@@ -175,19 +183,7 @@ class ProvidersDisplay extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {editingProvider: false, providers: [], selectedProvider: undefined,view:"providerList"};
-    }
-
-    componentDidMount() {
-        //TODO: Remember to replace jquery dependency
-        $.ajax({
-            url: "/api/v0/providers",
-            success: (r) => {
-                if (r.success) {
-                    this.setState({providers: r.payload})
-                }
-            }
-        })
+        this.state = {providers: this.props.providers,editingProvider: false, selectedProvider: undefined,view:"providerList"};
     }
 
     editProvider = (provider) => {
@@ -195,19 +191,7 @@ class ProvidersDisplay extends React.Component {
     }
 
     providerSavedCallback = (provider) => {
-        this.setState((state)=>{
-            if(!provider.id){
-                state.providers.push(provider);
-                return {providers:state.providers,editingProvider:false,selectedProvider:undefined,view:"providerList"};
-            }
-            const nList = state.providers.map((item)=>{
-                if (item.id === provider.id){
-                    return provider;
-                }
-                return item;
-            })
-            return {providers:nList,editingProvider:false,selectedProvider:undefined};
-        })
+            this.props.loadProviders();
     }
 
     onProviderEditingCancel = () => {
@@ -222,10 +206,14 @@ class ProvidersDisplay extends React.Component {
         this.setState({providers:providers});
     }
 
+    onProviderFilter = (providers)=>{
+        this.setState({providers:providers.length?providers:this.props.providers});
+    }
+
     whatToDisplay() {
         switch (this.state.view) {
             case "providerList":
-                return <ExistentProvidersDisplay onProviderDeleted={this.onProviderDeleted} providers={this.state.providers} onProviderSelect={this.editProvider} createNewProviderCallback={this.createNewProvider}/>
+                return <ExistentProvidersDisplay onProviderFilter={this.onProviderFilter} onProviderDeleted={this.onProviderDeleted} providers={this.state.providers} onProviderSelect={this.editProvider} createNewProviderCallback={this.createNewProvider}/>
             case "providerEdit":
                 return <ProviderEditor onProviderDataSave={this.providerSavedCallback} onProviderEditingCancel={this.onProviderEditingCancel} provider={this.state.selectedProvider}/>
         }

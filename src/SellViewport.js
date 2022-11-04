@@ -162,9 +162,9 @@ function CodeCapture(props) {
         <div className="row search-bar-end">
             <div className="col-12">
                 <div className="input-group input-group-lg mb-3">
-                    <button onClick={props.setSearchView} className="btn btn-primary">
-                        <i className="bi-search"></i>
-                    </button>
+                    <span className="input-group-text bg-main">
+                        <i className="bi-upc-scan"></i>
+                    </span>
                     <input id={"code"} onKeyUp={getProduct.bind(this)} type="text" className="form-control"
                         placeholder="Captura codigo de producto" />
                 </div>

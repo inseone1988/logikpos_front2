@@ -131,6 +131,16 @@ function UsersListing(props) {
     return (
         <div className="row">
             <div className="col-12">
+                <div className="row">
+                    <div className="col-12">
+                        <div className="input-group mb-3">
+                            <span className="input-group-text">
+                                <i className="bi-search"></i>
+                            </span>
+                            <input onChange={props.filterUsers} type="text" className="form-control" placeholder="Buscar usuario"/>
+                        </div>
+                    </div>
+                </div>
                 <table className="table table-sm table-bordered table-stripped">
                     <thead>
                     <tr>
@@ -173,21 +183,17 @@ function Card(props) {
 
 class UsersView extends React.Component {
 
-    constructor(props, context) {
-        super(props, context);
-        this.state = {users: [], selectedUser: undefined, editing: false, cardTitle: "Usuarios"};
-    }
-
-    componentDidMount() {
-        this.loadUsers();
+    constructor(props) {
+        super(props);
+        this.state = {users: this.props.users, selectedUser: undefined, editing: false, cardTitle: "Usuarios"};
     }
 
     whatToDisplay = () => {
         switch (this.state.cardTitle) {
             case "Usuarios":
-                return <UsersListing users={this.state.users} onUserSelected={this.editUserCallback}/>
+                return <UsersListing filterUsers={this.filterUsers} users={this.state.users} onUserSelected={this.editUserCallback}/>
             case "Edicion de usuario":
-                return <UserEditor onUpdateUser={this.updateUser} onSaveUser={this.saveUser}
+                return <UserEditor onDeleteUser={this.delteUser} onUpdateUser={this.updateUser} onSaveUser={this.saveUser}
                                    selectedUser={this.state.selectedUser}/>
         }
     }
@@ -236,13 +242,7 @@ class UsersView extends React.Component {
     }
 
     loadUsers = () => {
-        fetch("api/v0/users")
-            .then(res => res.json())
-            .then((result) => {
-                if (result.success) {
-                    this.setState({users: result.payload});
-                }
-            });
+        this.props.loadUsers();
     }
 
     saveUser = () => {
@@ -269,9 +269,51 @@ class UsersView extends React.Component {
         });
     }
 
+    delteUser = () => {
+        Swal.fire({
+            title: '¿Estas seguro?',
+            text: "No podras revertir esta accion",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, eliminar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("api/v0/users/" + this.state.selectedUser.id, {
+                    method: "DELETE",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then((res) => res.json())
+                    .then((r) => {
+                        if (r.success) {
+                            this.setState({selectedUser: undefined, editing: false, cardTitle: "Usuarios"});
+                            this.loadUsers();
+                        }else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: r.message,
+                            })
+                        }
+                    }).catch((err) => {
+                    console.log(err);
+                });
+            }
+        });
+    }
+
     editUserCallback = (selectedUser, index) => {
         console.log(selectedUser);
         this.setState({editing: true, cardTitle: "Edicion de usuario", selectedUser: selectedUser});
+    }
+
+    filterUsers = (e) => {
+        let filter = e.target.value;
+        let users = this.props.users.filter((user) => {
+            return user.Client.fullName.toLowerCase().includes(filter.toLowerCase()) || user.userName.toLowerCase().includes(filter.toLowerCase());
+        });
+        this.setState({users: users});
     }
 
     render() {

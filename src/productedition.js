@@ -88,7 +88,6 @@ function ProductEditor(props) {
 function ProductsInfo(props) {
 
     let rows = props.products ? props.products.map((p, i) => {
-        console.log(p);
         return (
             <tr onDoubleClick={() => props.editProduct(p, i)} key={i}>
                 <td>{p.description}</td>
@@ -103,6 +102,16 @@ function ProductsInfo(props) {
     return (
         <div className="row">
             <div className="col-12">
+                <div className="row">
+                    <div className="col-12">
+                        <div className="input-group mb-2">
+                            <span className="input-group-text">
+                                <i className="bi-search"></i>
+                            </span>
+                            <input onChange={(e) => props.filterCallback(e.target.value)} type="text" className="form-control" placeholder="Buscar producto" />
+                        </div>
+                    </div>
+                </div>
                 <table className="table table-sm table-bordered table-hover">
                     <thead>
                         <tr>
@@ -128,7 +137,16 @@ class ProductEdition extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { products: props.products, editing: false, selectedProduct: {Price:{},Inventory:{}}, cardTitle: "Productos" };
+        this.state = { products: this.props.products, editing: false, selectedProduct: {Price:{},Inventory:{}}, cardTitle: "Productos" };
+    }
+
+    filterProducts =(searchString)=>{
+        let products = this.props.products.filter(p=>{
+            return (p.description.toLowerCase().includes(searchString.toLowerCase())
+            || p.internalCode.toLowerCase().includes(searchString.toLowerCase())
+            || p.sku.toLowerCase().includes(searchString.toLowerCase()));
+        });
+        this.setState({products:products});
     }
 
     productSaveCallback = () => {
@@ -175,7 +193,7 @@ class ProductEdition extends React.Component {
     whatToDisplay() {
         switch (this.state.cardTitle) {
             case 'Productos':
-                return <ProductsInfo editProduct={this.setEditingProduct} products={this.props.products} />
+                return <ProductsInfo filterCallback={this.filterProducts} editProduct={this.setEditingProduct} products={this.state.products} />
             case 'Edicion de producto':
                 return <ProductEditor deleteProduct={this.deleteProduct} handleProductUpdate={this.handleProductUpdate} saveProuctCallback={this.productSaveCallback} product={this.state.selectedProduct} />
             default:
