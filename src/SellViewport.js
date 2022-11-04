@@ -151,6 +151,77 @@ function CodeCapture(props) {
         }
     }
 
+    function cashMovement() {
+        Swal.fire({
+            title: 'Movimiento de efectivo',
+            text: "Ingrese tipo de movimiento y monto",
+            html: `<div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <i class="bi-currency-dollar"></i>
+                        </span>
+                       <input id="cashMovementAmount" type="number" class="form-control form-control-lg" placeholder="Monto" /> 
+                   </div>
+                   <div class="form-floating mb-3">
+                        <textarea name="Notas" id="cm-notes" cols="30" rows="10" class="form-control"></textarea>
+                        <label for="cm-notes">Comentarios</label>
+                   </div>
+                   <div class="form-check">
+                        <input class="form-check-input" type="radio" name="cashMovementType" id="cashMovementType1" value="1" checked>
+                        <label class="form-check-label" for="cashMovementType1">Ingreso</label>
+                   </div>
+                   <div class="form-check">
+                        <input class="form-check-input" type="radio" name="cashMovementType" id="cashMovementType2" value="2">
+                        <label class="form-check-label" for="cashMovementType2">Egreso</label>
+                   </div>`,
+            showCancelButton: true,
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return {
+                    amount : document.getElementById('cashMovementAmount').value,
+                    type : document.querySelector('input[name="cashMovementType"]:checked').value,
+                    notes : document.getElementById('cm-notes').value
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Resumen de movimiento',
+                    html: `<p>Monto: ${result.value.amount}</p>
+                            <p>Tipo: ${result.value.type === "1" ? "Ingreso" : "Egreso"}</p>
+                            <p>Comentarios: ${result.value.notes}</p>`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Aceptar',
+                    cancelButtonText: 'Cancelar',
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return result;
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('/api/v0/cashmvts', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(result.value.value)
+                        }).then((response) => {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Movimiento registrado',
+                                    icon: 'success',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            }
+                        })
+                    }
+                })
+            }
+        })
+    }
+
     /**
      * Helper methos to populate fake products for testing
      */
@@ -172,7 +243,7 @@ function CodeCapture(props) {
                     <button onClick={props.cobrar} className="btn btn-sm btn-primary">Cobrar [F2]</button>
                     <button onClick={props.iva} className="btn btn-sm btn-primary">IVA [F3]</button>
                     <button onClick={props.cancel} className="btn btn-sm btn-primary">Cancelar orden [F4]</button>
-                    <button className="btn btn-sm btn-primary">Mov. Caja [F5]</button>
+                    <button onClick={()=>cashMovement()} className="btn btn-sm btn-primary">Mov. Caja [F5]</button>
                     <button onClick={props.setSearchView} className="btn btn-sm btn-primary">Buscar [F10]</button>
                     <button className="btn btn-sm btn-primary">Cierre de caja [F12]</button>
                 </div>

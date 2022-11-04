@@ -72,7 +72,7 @@ class Login extends React.Component {
                         </div>
                         <p>¿Aun no tienes cuenta? <button onClick={this.props.displayRegistrationForm}
                                                           className="btn btn-link">Crea un aqui</button></p>
-                        <button onClick={this.login} className="btn btn-primary mb-3" type='button'>Salir</button>
+                        <button onClick={this.login} className="btn btn-primary mb-3" type='button'>Entrar</button>
                     </div>
                 </div>
                 <div className="card-footer text-center">
