@@ -6,6 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import $ from 'jquery';
 import Registration from "./registration";
 import POS from "./pos";
+import logo from './text10.png';
 
 
 class Login extends React.Component {
@@ -53,9 +54,7 @@ class Login extends React.Component {
     render() {
         return (<div className="container-fluid login-container">
             <div className="card m-auto login-card">
-                <div className="card-header bg-light">
-                    <h5>LogikPOS - Bienvenido</h5>
-                </div>
+                <img src={logo} className="card-img-top ps-2 pe-2 pt-3" alt="LogikPOS"/>
                 <div className="card-body login-card">
                     <div id='message'
                          className={`alert text-center ${this.state.error ? "" : "d-none"} ${this.state.error ? this.state.type : 'alert-success'}`}>{this.state.message}</div>

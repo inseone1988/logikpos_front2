@@ -158,7 +158,7 @@ class Registration extends React.Component {
                 this.state.userData.bussiness = this.serializeData("#bdata");
                 console.log(this.state.userData.bussiness);
                 $.ajax({
-                    url : "/api/v0/registration",
+                    url : "/register",
                     type : "post",
                     data : this.state.userData,
                     success: (r)=>{

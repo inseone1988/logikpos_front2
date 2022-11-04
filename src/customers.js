@@ -117,7 +117,7 @@ function ExistentCustomersView(props) {
             <td>{moment(e.updated_at).format("DD MMMM YYYY h:m:s")}</td>
         </tr>)
     }) : (<tr>
-        <td className="no-data-row" colSpan={3}>No hay clientes registrados</td>
+        <td className="no-data-row" colSpan={4}>Fideliza a tus clientes con promociones y descuentos</td>
     </tr>);
 
     return (

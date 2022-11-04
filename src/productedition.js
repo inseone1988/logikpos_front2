@@ -87,7 +87,7 @@ function ProductEditor(props) {
 
 function ProductsInfo(props) {
 
-    let rows = props.products ? props.products.map((p, i) => {
+    let rows = props.products.length ? props.products.map((p, i) => {
         return (
             <tr onDoubleClick={() => props.editProduct(p, i)} key={i}>
                 <td>{p.description}</td>

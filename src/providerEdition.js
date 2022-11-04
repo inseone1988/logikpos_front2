@@ -124,7 +124,7 @@ function ExistentProvidersDisplay(props) {
             </td>
         </tr>)
     }) : (<tr>
-        <td className="no-data-row" colSpan="3">No hay proveedores registrados</td>
+        <td className="no-data-row" colSpan="3">Para que sepas quien te surte que y a como</td>
     </tr>)
 
     function filterProviders(e){

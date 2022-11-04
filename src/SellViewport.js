@@ -172,7 +172,9 @@ function CodeCapture(props) {
                     <button onClick={props.cobrar} className="btn btn-sm btn-primary">Cobrar [F2]</button>
                     <button onClick={props.iva} className="btn btn-sm btn-primary">IVA [F3]</button>
                     <button onClick={props.cancel} className="btn btn-sm btn-primary">Cancelar orden [F4]</button>
+                    <button className="btn btn-sm btn-primary">Mov. Caja [F5]</button>
                     <button onClick={props.setSearchView} className="btn btn-sm btn-primary">Buscar [F10]</button>
+                    <button className="btn btn-sm btn-primary">Cierre de caja [F12]</button>
                 </div>
             </div>
         </div>
@@ -292,7 +294,7 @@ class SellViewport extends React.Component {
     }
 
     handleKeyDown = (event) => {
-        if (event.key === "F1" || event.key === "F2" || event.key === "F3" || event.key === "F4" || event.key === "F5" || event.key === "F6" || event.key === "F7" || event.key === "F8" || event.key === "F9" || event.key === "F10" || event.key === "F11" || event.key === "F12" || event.key === "Delete") {
+        if (event.key === "F1" || event.key === "F2" || event.key === "F3" || event.key === "F4" || event.key === "F5" || event.key === "F6" || event.key === "F7" || event.key === "F8" || event.key === "F9" || event.key === "F10" || event.key === "F12" || event.key === "Delete") {
             event.preventDefault();
 
             switch (event.key) {
