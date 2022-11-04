@@ -15,6 +15,8 @@ import ProductEdition from "./productedition";
 import ProvidersDisplay from "./providerEdition";
 import UsersView from "./users";
 
+import logo from './text10.png';
+
 class Clock extends React.Component {
 
     constructor(props, context) {
@@ -45,10 +47,11 @@ function NavBar(props) {
     return (
         <nav className="navbar bg-light">
             <div className="container-fluid">
-                <a href={"#"} className="navbar-brand">LogikPOS</a>
-                <div className="d-flex">
-                    <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li className="nav-item">
+                <a href={"#"} className="navbar-brand">
+                    <img className='img-fluid' style={{maxWidth:"100px"}} src={logo} alt="logo" />
+                </a>
+                <ul className="nav justify-content-end text-center">
+                        <li className="nav-item me-3 mt-1">
                             <Clock />
                         </li>
                         <li className={"nav-item"}>
@@ -58,7 +61,6 @@ function NavBar(props) {
                             </button>
                         </li>
                     </ul>
-                </div>
             </div>
         </nav>
     );
@@ -68,7 +70,6 @@ function SideBar(props) {
     return (
         <div className="row d-flex justify-content-center">
             <div className="col-12 logo-image">
-                <img src="logo.svg" alt="logo" className="img-fluid" />
             </div>
             <div className="list-group mt-3">
                 <button onClick={() => {

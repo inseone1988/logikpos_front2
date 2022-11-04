@@ -451,8 +451,11 @@ class SellViewport extends React.Component {
 
     deleteItem = () => {
         this.setState((state) => {
-            state.order.items.splice(state.selectedItem.index, 1);
+            if(state.selectedItem){
+                state.order.items.splice(state.selectedItem.index, 1);
             return this.updateOrder(state);
+            }
+            return state;
         })
     }
 

@@ -246,8 +246,9 @@ class UsersView extends React.Component {
     }
 
     saveUser = () => {
-        fetch("api/v0/users", {
-            method: "POST",
+        let updateUser = this.state.selectedUser.id?"/"+this.state.selectedUser.id:"";
+        fetch("api/v0/users" + updateUser, {
+            method: updateUser?"PUT":"POST",
             headers: {
                 'Content-Type': 'application/json'
             },
