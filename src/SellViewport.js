@@ -7,12 +7,14 @@ import numeral from 'numeral';
 import Swal from 'sweetalert2';
 import '@tarekraafat/autocomplete.js/dist/css/autoComplete.css';
 import '@tarekraafat/autocomplete.js/dist/autoComplete';
+import handler from './handler';
+
 
 function ProductSearch(props) {
 
     const rows = props.searchResult.length ? props.searchResult.map((product, index) => {
         return (
-            <tr className={`${product.Inventory.currentSupply < product.Inventory.minimalExistences?"bg-warning":""}`} key={index} onClick={() => props.selectProduct([product])}>
+            <tr className={`${product.Inventory.currentSupply < product.Inventory.minimalExistences ? "bg-warning" : ""}`} key={index} onClick={() => props.selectProduct([product])}>
                 <td>{product.description}</td>
                 <td>{product.internalCode}</td>
                 <td>{product.sku}</td>
@@ -81,7 +83,7 @@ function ItemPanel(props) {
         });
     }
 
-    const rows = props.order.items.length ? props.order.items.map((e, i) => {
+    const rows = props.order.OrderDetails.length ? props.order.OrderDetails.map((e, i) => {
         let total = (e.quantity * Number(e.price));
         return (
             <tr onClick={() => props.onSelectItem(e, i)} key={i}>
@@ -140,6 +142,7 @@ function CodeCapture(props) {
         const result = props.products.filter((element) => {
             return (element.internalCode === string || element.sku === string);
         })
+        props.selectItem(result);
         props.onProductSelected(result);
     }
 
@@ -179,9 +182,9 @@ function CodeCapture(props) {
             showLoaderOnConfirm: true,
             preConfirm: () => {
                 return {
-                    amount : document.getElementById('cashMovementAmount').value,
-                    type : document.querySelector('input[name="cashMovementType"]:checked').value,
-                    notes : document.getElementById('cm-notes').value
+                    amount: document.getElementById('cashMovementAmount').value,
+                    type: document.querySelector('input[name="cashMovementType"]:checked').value,
+                    notes: document.getElementById('cm-notes').value
                 }
             }
         }).then((result) => {
@@ -243,7 +246,7 @@ function CodeCapture(props) {
                     <button onClick={props.cobrar} className="btn btn-sm btn-primary">Cobrar [F2]</button>
                     <button onClick={props.iva} className="btn btn-sm btn-primary">IVA [F3]</button>
                     <button onClick={props.cancel} className="btn btn-sm btn-primary">Cancelar orden [F4]</button>
-                    <button onClick={()=>cashMovement()} className="btn btn-sm btn-primary">Mov. Caja [F5]</button>
+                    <button onClick={() => cashMovement()} className="btn btn-sm btn-primary">Mov. Caja [F5]</button>
                     <button onClick={props.setSearchView} className="btn btn-sm btn-primary">Buscar [F10]</button>
                     <button className="btn btn-sm btn-primary">Cierre de caja [F12]</button>
                 </div>
@@ -255,7 +258,7 @@ function CodeCapture(props) {
 function SearchBar(props) {
     return (
         <div className="col-sm-12 col-md-8">
-            <CodeCapture cobrar={props.checkout} iva={props.tax} cancel={props.cancel} setSearchView={props.setSearchView} search={props.search} products={props.products} onProductSelected={props.onProductSelected} />
+            <CodeCapture selectItem={props.selectItem} cobrar={props.checkout} iva={props.tax} cancel={props.cancel} setSearchView={props.setSearchView} search={props.search} products={props.products} onProductSelected={props.onProductSelected} />
         </div>
     );
 }
@@ -353,8 +356,8 @@ class SellViewport extends React.Component {
             contextMessage: "",
             order: {
                 total: 0,
-                items: [],
-                payments: []
+                OrderDetails: [],
+                Payments: []
             },
             searchResult: [],
         }
@@ -365,7 +368,21 @@ class SellViewport extends React.Component {
     }
 
     handleKeyDown = (event) => {
-        if (event.key === "F1" || event.key === "F2" || event.key === "F3" || event.key === "F4" || event.key === "F5" || event.key === "F6" || event.key === "F7" || event.key === "F8" || event.key === "F9" || event.key === "F10" || event.key === "F12" || event.key === "Delete") {
+        if (event.key === "F1" ||
+            event.key === "F2" ||
+            event.key === "F3" ||
+            event.key === "F4" ||
+            event.key === "F5" ||
+            event.key === "F6" ||
+            event.key === "F7" ||
+            event.key === "F8" ||
+            event.key === "F9" ||
+            event.key === "F10" ||
+            event.key === "F12" ||
+            event.key === "Delete" ||
+            event.key === "add" ||
+            event.key === "subtract"||
+            event.key === "Escape") {
             event.preventDefault();
 
             switch (event.key) {
@@ -403,12 +420,58 @@ class SellViewport extends React.Component {
                             break;
                     }
                     break;
-
+                case 'add':
+                    switch (this.state.context) {
+                        case 'sell':
+                            this.increaseItem();
+                            break;
+                    }
+                    break;
+                case 'subtract':
+                    switch (this.state.context) {
+                        case 'sell':
+                            this.decreaseItem();
+                            break;
+                    }
+                    break;
+                case 'Escape':
+                    switch (this.state.context) {
+                        case 'sell':
+                            this.cancelOrder();
+                            break;
+                        case 'search':
+                            this.setSellView();
+                            break;
+                    }
+                    default:
+                        break;
             }
         }
     }
 
-    applyTax = ()=>{
+    setSellView = () => {
+        this.setState({ context: "sell", contextMessage: "" });
+    }
+
+    increaseItem = () => {
+        this.setState((state) => {
+            let item = state.selectedItem.item;
+            item.quantity++;
+            item.total = item.quantity * item.price;
+            return state;
+        });
+    }
+
+    decreaseItem = () => {
+        this.setState((state) => {
+            let item = state.selectedItem.item;
+            item.quantity--;
+            item.total = item.quantity * item.price;
+            return { selectedItem: { item: item } };
+        });
+    }
+
+    applyTax = () => {
         this.setState((state) => {
             console.log(state);
             state.order.tax = !state.order.tax;
@@ -418,7 +481,7 @@ class SellViewport extends React.Component {
 
     updateOrder = (state) => {
         let total = 0;
-        for (const item of state.order.items) {
+        for (const item of state.order.OrderDetails) {
             total += (item.price * item.quantity);
         }
         state.order.taxAmount = (total * 0.16);
@@ -441,7 +504,7 @@ class SellViewport extends React.Component {
         })
     }
 
-    updateOrderItems = (product, index) => {
+    updateOrderDetails = (product, index) => {
         if (product.length) {
             this.setState((state) => {
                 if (state.context === "search") state.context = "sell";
@@ -449,8 +512,15 @@ class SellViewport extends React.Component {
                     let p = product[0];
                     p.quantity = 1;
                     p.price = p.Price.price;
-                    p.ProductId = p.id;
-                    state.order.items.push(p);
+                    //TODO: explore if we have a workaround
+                    let no = Object.assign({}, p);
+                    //On new orders we have to check if orderItem has id
+                    //By default it infers product id
+                    //so we have to delete it to avoid id conflicts
+                    //*This doesnt work p.ProductId = new String(p.id);
+                    if(!state.order.id&&p.id) delete no.id;
+                    no.ProductId = p.id;
+                    state.order.OrderDetails.push(no);
                     state = this.updateOrder(state);
                     return state;
                 }
@@ -468,7 +538,7 @@ class SellViewport extends React.Component {
 
     modifyItemQuantity = (item, index) => {
         this.setState((state) => {
-            state.order.items[index] = item;
+            state.order.OrderDetails[index] = item;
             return this.updateOrder(state);
         });
     }
@@ -484,56 +554,64 @@ class SellViewport extends React.Component {
         }
         Swal.fire({
             title: 'Resumen de la orden',
-            html: `<h4>Articulos: ${order.items.length}</h4><h4>Total: ${numeral(order.total).format("$0.00")}</h4><h4>Efectivo: ${numeral(paymentInfo.cash).format("$0.00")}</h4><h4>Cambio: ${numeral(paymentInfo.change).format("$0.00")}</h4>`,
+            html: `<h4>Articulos: ${order.OrderDetails.length}</h4><h4>Total: ${numeral(order.total).format("$0.00")}</h4><h4>Efectivo: ${numeral(paymentInfo.cash).format("$0.00")}</h4><h4>Cambio: ${numeral(paymentInfo.change).format("$0.00")}</h4>`,
             showDenyButton: true,
             showCancelButton: true,
             confirmButtonText: `Cobrar`,
             denyButtonText: `Cancelar`,
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch('api/v0/orders', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(order),
-                }).then(r => r.json()).then((data) => {
-                    console.log(data);
-                    if (data.success) {
-                        Swal.fire('Orden cobrada', `Folio : ${data.payload.orderId}`, 'success');
-                        this.setState({ context: "sell", order: { total: 0, items: [], payments: [] } });
-                        this.props.loadProducts();
-                    } else {
-                        Swal.fire('Error', data.message, 'error');
-                    }
-                });
+            handler.createSale(order)
+            .then((response) => {
+                console.log(response);
+                if(response.success){
+                    Swal.fire('Gracias por su compra', '', 'success');
+                    this.setState({
+                        order: {
+                            OrderDetails: [],
+                            tax: false,
+                            taxAmount: 0,
+                            total: 0,
+                        },
+                        context: "sell",
+                        selectedItem: {
+                            item: {
+                                quantity: 0,
+                                price: 0,
+                                total: 0,
+                            }
+                        },
+                        searchResult: [],
+                    });
+                }
+            })
             } else if (result.isDenied) {
                 this.setState({ context: "sell" });
             }
         })
-        order.payments.push(paymentInfo);
+        order.Payments.push(paymentInfo);
     }
 
     modifyItemPrice = (item, index) => {
         this.setState((state) => {
-            state.order.items[index].lastPrice = state.order.items[index].price;
-            state.order.items[index] = item;
+            state.order.OrderDetails[index].lastPrice = state.order.OrderDetails[index].price;
+            state.order.OrderDetails[index] = item;
             return this.updateOrder(state);
         })
     }
 
     deleteItem = () => {
         this.setState((state) => {
-            if(state.selectedItem){
-                state.order.items.splice(state.selectedItem.index, 1);
-            return this.updateOrder(state);
+            if (state.selectedItem) {
+                state.order.OrderDetails.splice(state.selectedItem.index, 1);
+                return this.updateOrder(state);
             }
             return state;
         })
     }
 
     cancelOrder = () => {
-        this.setState({ context: "sell", order: { total: 0, items: [], payments: [] }, selectedItem: undefined });
+        this.setState({ context: "sell", order: { total: 0, OrderDetails: [], Payments: [] }, selectedItem: undefined });
     }
 
     selectItem = (item, index) => {
@@ -554,41 +632,34 @@ class SellViewport extends React.Component {
         }
     }
 
+    SellPane() {
+        return (<div className="row">
+            <LCDDisplay order={this.state.order} />
+            <SearchBar selectItem={this.selectItem} checkout={this.handleCheckout} tax={this.applyTax} cancel={this.cancelOrder} search={this.searchProduct} setSearchView={this.setSearchView} order={this.state.order} products={this.props.products}
+                onProductSelected={this.updateOrderDetails} />
+            <ItemPanel onSelectItem={this.selectItem} deleteIte={this.deleteItem}
+                modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}
+                order={this.state.order} />
+            <UtilsView finalizeOrder={this.finalizeOrder}
+                onCheckOutConfirm={this.finalizeOrder} order={this.state.order}
+                contextMessage={this.state.contextMessage} itemCount={this.state.order.OrderDetails.length}
+                context={this.state.context} />
+        </div>);
+    }
+
     whatToShow() {
         switch (this.state.context) {
             case "sell":
-                return (<div className="row">
-                    <LCDDisplay order={this.state.order} />
-                    <SearchBar checkout={this.handleCheckout} tax={this.applyTax} cancel={this.cancelOrder} search={this.searchProduct}  setSearchView={this.setSearchView} order={this.state.order} products={this.props.products}
-                        onProductSelected={this.updateOrderItems} />
-                    <ItemPanel onSelectItem={this.selectItem} deleteIte={this.deleteItem}
-                        modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}
-                        order={this.state.order} />
-                    <UtilsView finalizeOrder={this.finalizeOrder}
-                        onCheckOutConfirm={this.finalizeOrder} order={this.state.order}
-                        contextMessage={this.state.contextMessage} itemCount={this.state.order.items.length}
-                        context={this.state.context} />
-                </div>)
+                return this.SellPane();
             case "search":
                 return <ProductSearch
                     searchResult={this.state.searchResult}
                     search={this.searchProduct}
-                    selectProduct={this.updateOrderItems}
-                    updateOrderItems={this.updateOrderItems}
+                    selectProduct={this.updateOrderDetails}
+                    updateOrderDetails={this.updateOrderDetails}
                 />
             default:
-                return (<div className="row">
-                    <LCDDisplay order={this.state.order} />
-                    <SearchBar search={this.setSearchView} order={this.state.order} products={this.props.products}
-                        onProductSelected={this.updateOrderItems} />
-                    <ItemPanel onSelectItem={this.selectItem} deleteIte={this.deleteItem}
-                        modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}
-                        order={this.state.order} />
-                    <UtilsView finalizeOrder={this.finalizeOrder}
-                        onCheckOutConfirm={this.finalizeOrder} order={this.state.order}
-                        contextMessage={this.state.contextMessage} itemCount={this.state.order.items.length}
-                        context={this.state.context} />
-                </div>)
+                return this.SellPane();
         }
     }
 

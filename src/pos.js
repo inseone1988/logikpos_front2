@@ -13,6 +13,7 @@ import CustomersView from './customers';
 import ProductEdition from "./productedition";
 import ProvidersDisplay from "./providerEdition";
 import UsersView from "./users";
+import handler from "./handler";
 
 import logo from './text10.png';
 
@@ -22,7 +23,7 @@ class Clock extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { currentTime: undefined };
+        this.state = {currentTime: undefined};
     }
 
     componentDidMount() {
@@ -32,7 +33,7 @@ class Clock extends React.Component {
 
     tick() {
         setInterval(() => {
-            this.setState({ currentTime: moment().format("dddd DD MMMM YYYY hh:mm:ss") });
+            this.setState({currentTime: moment().format("dddd DD MMMM YYYY hh:mm:ss")});
         }, 1000);
     }
 
@@ -49,19 +50,19 @@ function NavBar(props) {
         <nav className="navbar bg-light">
             <div className="container-fluid">
                 <a href={"#"} className="navbar-brand">
-                    <img className='img-fluid' style={{maxWidth:"100px"}} src={logo} alt="logo" />
+                    <img className='img-fluid' style={{maxWidth: "100px"}} src={logo} alt="logo"/>
                 </a>
                 <ul className="nav justify-content-end text-center">
-                        <li className="nav-item me-3 mt-1 fw-bold">
-                            <Clock />
-                        </li>
-                        <li className={"nav-item"}>
-                            {props.user ? props.user.Client.fullName : "Invitado"}
-                            <button onClick={props.logout} className="ms-2 btn btn-light">
-                                <i className="bi-box-arrow-right" />
-                            </button>
-                        </li>
-                    </ul>
+                    <li className="nav-item me-3 mt-1 fw-bold">
+                        <Clock/>
+                    </li>
+                    <li className={"nav-item"}>
+                        {props.user ? props.user.Client.fullName : "Invitado"}
+                        <button onClick={props.logout} className="ms-2 btn btn-light">
+                            <i className="bi-box-arrow-right"/>
+                        </button>
+                    </li>
+                </ul>
             </div>
         </nav>
     );
@@ -80,7 +81,7 @@ function SideBar(props) {
                     &nbsp;Venta
                 </button>
                 {(() => {
-                    if (props.user.role === "CLIENT" || props.user.permissions.products) {
+                    if (props.user.role === "admin" || props.user.permissions.products) {
                         return <button onClick={() => {
                             props.itemClick("productos")
                         }} className="list-group-item list-group-item-action">
@@ -89,8 +90,8 @@ function SideBar(props) {
                         </button>
                     }
                 })()}
-                {(()=>{
-                    if(props.user.role === "CLIENT" || props.user.permissions.providers){
+                {(() => {
+                    if (props.user.role === "admin" || props.user.permissions.providers) {
                         return <button onClick={() => {
                             props.itemClick("provedores")
                         }} className="list-group-item list-group-item-action">
@@ -100,17 +101,17 @@ function SideBar(props) {
                     }
                 })()}
                 {(() => {
-                    if (props.user.role === "CLIENT" || props.user.permissions.customers) {
+                    if (props.user.role === "admin" || props.user.permissions.customers) {
                         return <button onClick={() => {
-                            props.itemClick("clientes")
+                            props.itemClick("Clientes")
                         }} className="list-group-item list-group-item-action">
                             <i className="bi-people mr-3"></i>
                             &nbsp;Clientes
                         </button>
                     }
                 })()}
-                {(()=>{
-                    if(props.user.role === "CLIENT" || props.user.permissions.users){
+                {(() => {
+                    if (props.user.role === "admin" || props.user.permissions.users) {
                         return <button onClick={() => {
                             props.itemClick("usuarios")
                         }} className="list-group-item list-group-item-action">
@@ -119,8 +120,8 @@ function SideBar(props) {
                         </button>
                     }
                 })()}
-                {(()=>{
-                    if(props.user.role === "CLIENT" || props.user.permissions.reports){
+                {(() => {
+                    if (props.user.role === "admin" || props.user.permissions.reports) {
                         return <button onClick={() => {
                             props.itemClick("reporteria")
                         }} className="list-group-item list-group-item-action">
@@ -129,8 +130,8 @@ function SideBar(props) {
                         </button>
                     }
                 })()}
-                {(()=>{
-                    if(props.user.role === "CLIENT" || props.user.permissions.config){
+                {(() => {
+                    if (props.user.role === "admin" || props.user.permissions.config) {
                         return <button onClick={() => {
                             props.itemClick("configuracion")
                         }} className="list-group-item list-group-item-action">
@@ -149,16 +150,16 @@ function MainContent(props) {
     const whatToDisplay = () => {
         switch (props.currentview) {
             case "venta":
-                return <SellViewport loadProducts={props.loadProducts} products={props.products} />
+                return <SellViewport loadProducts={props.loadProducts} products={props.products}/>
             case "productos":
-                return <ProductEdition loadProducts={props.loadProducts} products={props.products} />
+                return <ProductEdition loadProducts={props.loadProducts} products={props.products}/>
             case "provedores":
-                return <ProvidersDisplay loadProviders={props.loadProviders} providers={props.providers} />
-            case "clientes":
-                return <CustomersView customers={props.customers} loadCustomers={props.loadCustomers} />
+                return <ProvidersDisplay loadProviders={props.loadProviders} providers={props.providers}/>
+            case "Clientes":
+                return <CustomersView customers={props.customers} loadCustomers={props.loadCustomers}/>
             case "reporteria":
                 Swal.fire(';) Work in progress...', 'Preparate para las nuevas sorpresas. Pronto.', "info");
-                return <SellViewport />
+                return <SellViewport/>
             case "usuarios":
                 return <UsersView users={props.users} loadUsers={props.loadUsers}/>
             default:
@@ -169,7 +170,7 @@ function MainContent(props) {
     return (
         <div className="row">
             <div className="col-2">
-                <SideBar user={props.user} itemClick={props.itemClick} />
+                <SideBar user={props.user} itemClick={props.itemClick}/>
             </div>
             <div className="col-10 mt-3">
                 {whatToDisplay()}
@@ -182,12 +183,19 @@ class POS extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {products:[],customers:[],providers:[],users:[], user: this.props.user, currentview: "venta" };
+        this.state = {
+            products: [],
+            customers: [],
+            providers: [],
+            users: [],
+            user: this.props.user,
+            currentview: "venta"
+        };
     }
 
     changeContext = (view) => {
         console.log(view);
-        this.setState({ currentview: view });
+        this.setState({currentview: view});
     }
 
     componentDidMount() {
@@ -198,80 +206,42 @@ class POS extends React.Component {
     }
 
     loadProducts = () => {
-        fetch("api/v0/products/all", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then((response) => { return response.json() }
-        ).then((data) => {
-            if (data.success) {
-                this.setState({ products: data.payload });
-            }
+        handler.getProducts().then((data) => {
+            this.setState({products: data.payload});
         });
     }
 
     loadProviders = () => {
-        fetch("api/v0/providers", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then((response) => { return response.json() }
-        ).then((data) => {
-            if (data.success) {
-                this.setState({ providers: data.payload });
-            }
+        handler.getProviders().then((data) => {
+            this.setState({providers: data.payload});
         });
     }
 
-    loadCustomers=()=>{
-        fetch("api/v0/customers", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then((response) => { return response.json() }
-        ).then((data) => {
-            if (data.success) {
-                this.setState({ customers: data.payload });
-            }
+    loadCustomers = () => {
+        handler.getCustomers().then((data) => {
+            this.setState({customers: data.payload});
         });
     }
 
-    loadUsers = ()=>{
-        fetch("api/v0/users", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then((response) => { return response.json() }
-        ).then((data) => {
-            if (data.success) {
-                this.setState({ users: data.payload });
-            }
+    loadUsers = () => {
+        handler.getUsers().then((data) => {
+            this.setState({users: data.payload});
         });
     }
 
     logout() {
-        fetch("api/v0/users/logout", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }).then((response) => { return response.json() }
-        ).then((data) => {
-            if (data.success) {
-                window.location.reload();
-            }
-        });
+        handler.logout().then((data) => window.location.reload());
     }
 
     render() {
         return (
             <div className="container-fluid">
-                <NavBar logout={this.logout} user={this.state.user} />
-                <MainContent users={this.state.users} loadUsers={this.loadUsers} customers={this.state.customers} loadCustomers={this.loadCustomers} providers={this.state.providers} loadProviders={this.loadProviders} user={this.props.user} loadProducts={this.loadProducts} products={this.state.products} itemClick={this.changeContext} currentview={this.state.currentview} />
+                <NavBar logout={this.logout} user={this.state.user}/>
+                <MainContent users={this.state.users} loadUsers={this.loadUsers} customers={this.state.customers}
+                             loadCustomers={this.loadCustomers} providers={this.state.providers}
+                             loadProviders={this.loadProviders} user={this.props.user} loadProducts={this.loadProducts}
+                             products={this.state.products} itemClick={this.changeContext}
+                             currentview={this.state.currentview}/>
             </div>
         );
     }

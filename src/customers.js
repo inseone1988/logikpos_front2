@@ -5,6 +5,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "moment/dist/locale/es-mx";
 import moment from "moment";
 import Swal from 'sweetalert2';
+import handler from './handler';
 
 moment.locale("es-mx");
 
@@ -91,7 +92,9 @@ function CustomerEditor(props) {
                 </div>
             </div>
             <div className="col-12 d-flex justify-content-end align-content-end">
-                <button className={`btn btn-danger mr-3 ${props.customer.id?"":"d-none"}`} onClick={props.onDelete}>Eliminar</button>
+                <button className={`btn btn-danger mr-3 ${props.customer.id ? "" : "d-none"}`}
+                        onClick={props.onDelete}>Eliminar
+                </button>
                 <button className="btn btn-primary" onClick={props.onSave}>Guardar</button>
             </div>
         </div>
@@ -123,7 +126,9 @@ function ExistentCustomersView(props) {
     return (
         <div className="row">
             <div className="col-12 mb-3">
-                <button onClick={(e)=>{props.setEditMode()}} className="btn btn-sm btn-primary">
+                <button onClick={(e) => {
+                    props.setEditMode()
+                }} className="btn btn-sm btn-primary">
                     Nuevo cliente
                     <i className="bi-plus"/>
                 </button>
@@ -135,7 +140,8 @@ function ExistentCustomersView(props) {
                             <span className="input-group-text bg-main">
                                 <i className="bi-search"></i>
                             </span>
-                            <input onChange={(e)=>props.filterCustomers(e)} type="text" className="form-control" placeholder="Buscar cliente"/>
+                            <input onChange={(e) => props.filterCustomers(e)} type="text" className="form-control"
+                                   placeholder="Buscar cliente"/>
                         </div>
                     </div>
                 </div>
@@ -161,21 +167,26 @@ class CustomersView extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {customers: this.props.customers, editing: false, selectedCustomer: undefined, cardTitle: "Clientes"}
+        this.state = {
+            customers: this.props.customers,
+            editing: false,
+            selectedCustomer: undefined,
+            cardTitle: "Clientes"
+        }
     }
 
     setEditMode = (selectedCustomer, index) => {
         this.setState((state) => {
             return {
                 editing: true,
-                selectedCustomer: selectedCustomer? selectedCustomer : {},
+                selectedCustomer: selectedCustomer ? selectedCustomer : {},
                 cardTitle: "Editar cliente"
             };
         });
     }
 
     updateCustomer = (e, name) => {
-        this.setState((state)=>{
+        this.setState((state) => {
             state.selectedCustomer[name] = e;
             return state;
         })
@@ -192,26 +203,16 @@ class CustomersView extends React.Component {
             confirmButtonText: 'Si, eliminar'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch("/api/v0/customers/"+this.state.selectedCustomer.id, {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    }
-                }).then((response) => {
-                    return response.json();
-                }).then((data) => {
-                    if(data.success){
-                        this.setState({editing: false, selectedCustomer: undefined, cardTitle: "Clientes"});
-                        this.props.loadCustomers();
+                handler.deleteCustomer(this.state.selectedCustomer.id).then((res) => {
+                    if (res.success) {
                         Swal.fire(
                             'Eliminado!',
-                            'El cliente ha sido eliminado',
+                            'El cliente ha sido eliminado.',
                             'success'
-                        )
+                        );
+                        this.props.loadCustomers();
+                        this.setState({cardTitle:"Clientes"});
                     }
-                }).catch((error) => {
-                    console.log(error);
                 });
             }
         })
@@ -220,12 +221,12 @@ class CustomersView extends React.Component {
     whatToDisplay() {
         switch (this.state.cardTitle) {
             case "Clientes":
-                return <ExistentCustomersView customers={this.state.customers}
+                return <ExistentCustomersView customers={this.props.customers}
                                               selectedCustomer={this.state.selectedCustomer}
                                               setEditMode={this.setEditMode}
                                               filterCustomers={this.filterCustomers}/>
             case "Editar cliente":
-                return <CustomerEditor onDelete={this.deleteCustomer} onSave={this.onCustomerSave} 
+                return <CustomerEditor onDelete={this.deleteCustomer} onSave={this.onCustomerSave}
                                        onFormChangeBind={this.updateCustomer}
                                        customer={this.state.selectedCustomer}/>;
             case "Informacion de cliente":
@@ -236,28 +237,38 @@ class CustomersView extends React.Component {
     }
 
     onCustomerSave = () => {
-        let updateCustomer = this.state.selectedCustomer.id?`/${this.state.selectedCustomer.id}`:"";
-        fetch("/api/v0/customers" + updateCustomer, {
-            method: updateCustomer!==""?"PUT":"POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify(this.state.selectedCustomer)
-        }).then((response) => {
-            return response.json();
-        }).then((data) => {
-            if(data.success){
-                this.setState((state)=>{
-                    state.cardTitle = "Clientes";
-                    state.editing = false;
-                    return state;
-                });
-                this.props.loadCustomers();
+        if (this.state.selectedCustomer.id) {
+            if (this.state.selectedCustomer.fullName) {
+                delete this.state.selectedCustomer.fullName;
             }
-        }).catch((error) => {
-            console.log(error);
-        });
+            handler.updateCustomer(this.state.selectedCustomer).then((data) => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cliente actualizado',
+                        text: 'El cliente ha sido actualizado',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    this.setState({editing: false, selectedCustomer: undefined, cardTitle: "Clientes"});
+                    this.props.loadCustomers();
+                }
+            })
+        } else {
+            handler.createCustomer(this.state.selectedCustomer).then((data) => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cliente creado',
+                        text: 'El cliente ha sido creado',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    this.setState({editing: false, selectedCustomer: undefined, cardTitle: "Clientes"});
+                    this.props.loadCustomers();
+                }
+            })
+        }
     }
 
     filterCustomers = (e) => {

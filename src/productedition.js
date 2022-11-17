@@ -3,8 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './styles.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import $ from 'jquery';
-import moment from 'moment';
+import handler from './handler';
 import 'sweetalert2/dist/sweetalert2.css';
 import Swal from 'sweetalert2';
 
@@ -150,28 +149,40 @@ class ProductEdition extends React.Component {
     }
 
     productSaveCallback = () => {
-        let updateProduct = this.state.selectedProduct.id ? `/${this.state.selectedProduct.id}` : "";
-        fetch("api/v0/products" + updateProduct, {
-            method: updateProduct === "" ? "POST" : "PUT",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(this.state.selectedProduct)
-        }).then(r => r.json())
-            .then(r => {
-                if (r.success) {
+        if (this.state.selectedProduct.id){
+            handler.updateProduct(this.state.selectedProduct).then((res)=>{
+                if(res.success){
+                    Swal.fire({
+                        title: 'Producto actualizado',
+                        text: "El producto se ha actualizado correctamente",
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    });
+                    this.setState({editing:false,selectedProduct:{Price:{},Inventory:{}},cardTitle:"Productos"});
                     this.props.loadProducts();
-                    this.setState({ editing: false, selectedProduct: {Price:{},Inventory:{}}, cardTitle: "Productos" });
-                    return;
+                }else{
+                    Swal.fire({
+                        title: 'Error al actualizar producto',
+                        text: res.message,
+                        icon: 'error',
+                        confirmButtonText: 'Ok'
+                    });
                 }
-                if (!r.success) {
-                    Swal.fire(
-                        "Error",
-                        r.message,
-                        "error"
-                    );
+            });
+        }else{
+            handler.createProduct(this.state.selectedProduct).then((res)=>{
+                if(res.success){
+                    Swal.fire({
+                        title: 'Producto creado',
+                        text: "El producto se ha creado correctamente",
+                        icon: 'success',
+                        timer: 2000
+                    });
+                    this.props.loadProducts();
+                    this.setState({editing:false,selectedProduct:{Price:{},Inventory:{}},cardTitle:"Productos"});
                 }
-            })
+            });
+        }
     }
 
     handleProductUpdate = (v, n) => {
@@ -193,7 +204,7 @@ class ProductEdition extends React.Component {
     whatToDisplay() {
         switch (this.state.cardTitle) {
             case 'Productos':
-                return <ProductsInfo filterCallback={this.filterProducts} editProduct={this.setEditingProduct} products={this.state.products} />
+                return <ProductsInfo filterCallback={this.filterProducts} editProduct={this.setEditingProduct} products={this.props.products} />
             case 'Edicion de producto':
                 return <ProductEditor deleteProduct={this.deleteProduct} handleProductUpdate={this.handleProductUpdate} saveProuctCallback={this.productSaveCallback} product={this.state.selectedProduct} />
             default:
@@ -222,26 +233,17 @@ class ProductEdition extends React.Component {
             confirmButtonText: 'Si, eliminar!'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch("api/v0/products/" + this.state.selectedProduct.id, {
-                    method: "DELETE",
-                    headers: {
-                        'Content-Type': 'application/json'
+                handler.deleteProduct(this.state.selectedProduct.id).then((res)=>{
+                    if(res.success){
+                        Swal.fire(
+                            'Eliminado!',
+                            'El producto ha sido eliminado.',
+                            'success'
+                        );
+                        this.props.loadProducts();
+                        this.setState({editing:false,selectedProduct:{Price:{},Inventory:{}},cardTitle:"Productos"});
                     }
-                }).then(r => r.json())
-                    .then(r => {
-                        if (r.success) {
-                            this.props.loadProducts();
-                            this.setState({ editing: false, selectedProduct: {Price:{},Inventory:{}}, cardTitle: "Productos" });
-                            return;
-                        }
-                        if (!r.success) {
-                            Swal.fire(
-                                "Error",
-                                r.message,
-                                "error"
-                            );
-                        }
-                    });
+                });
             }
         })
     }

@@ -3,19 +3,20 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles.css';
 import Swal from "sweetalert2";
+import handler from "./handler";
 
 function UserEditor(props) {
 
-    function mapPermissions(){
+    function mapPermissions() {
         const permissions = props.selectedUser.permissions;
         const permissionsMap = [];
-        if (props.selectedUser.id){
-            if(permissions.users) permissionsMap.push("u");
-            if(permissions.products) permissionsMap.push("p");
-            if(permissions.clients) permissionsMap.push("c");
-            if(permissions.vendors) permissionsMap.push("v");
-            if(permissions.reports) permissionsMap.push("r");
-            if(permissions.config) permissionsMap.push("f");
+        if (props.selectedUser.id) {
+            if (permissions.users) permissionsMap.push("u");
+            if (permissions.products) permissionsMap.push("p");
+            if (permissions.clients) permissionsMap.push("c");
+            if (permissions.vendors) permissionsMap.push("v");
+            if (permissions.reports) permissionsMap.push("r");
+            if (permissions.config) permissionsMap.push("f");
         }
         return permissionsMap;
     }
@@ -90,7 +91,8 @@ function UserEditor(props) {
                     <div className="card-body">
                         <div className="row">
                             <div className="col-12">
-                                <select defaultValue={mapPermissions()} onChange={(e) => props.onUpdateUser(e.target.name, e.target.value, e)}
+                                <select defaultValue={mapPermissions()}
+                                        onChange={(e) => props.onUpdateUser(e.target.name, e.target.value, e)}
                                         multiple={true} size={6} name="permissions" id="" className="form-select">
                                     <option value="p">Editar productos</option>
                                     <option value="c">Editar clientes</option>
@@ -106,7 +108,9 @@ function UserEditor(props) {
             </div>
             <div className="row">
                 <div className="col-12">
-                    <button onClick={() => props.onDeleteUser()} className={`btn btn-sm btn-danger me-3 ${props.selectedUser.id ? "" : "d-none"}`}>Eliminar</button>
+                    <button onClick={() => props.onDeleteUser()}
+                            className={`btn btn-sm btn-danger me-3 ${props.selectedUser.id ? "" : "d-none"}`}>Eliminar
+                    </button>
                     <button onClick={() => props.onSaveUser()} className="btn btn-sm btn-primary">Guardar</button>
                 </div>
             </div>
@@ -137,7 +141,8 @@ function UsersListing(props) {
                             <span className="input-group-text">
                                 <i className="bi-search"></i>
                             </span>
-                            <input onChange={props.filterUsers} type="text" className="form-control" placeholder="Buscar usuario"/>
+                            <input onChange={props.filterUsers} type="text" className="form-control"
+                                   placeholder="Buscar usuario"/>
                         </div>
                     </div>
                 </div>
@@ -191,9 +196,11 @@ class UsersView extends React.Component {
     whatToDisplay = () => {
         switch (this.state.cardTitle) {
             case "Usuarios":
-                return <UsersListing filterUsers={this.filterUsers} users={this.state.users} onUserSelected={this.editUserCallback}/>
+                return <UsersListing filterUsers={this.filterUsers} users={this.props.users}
+                                     onUserSelected={this.editUserCallback}/>
             case "Edicion de usuario":
-                return <UserEditor onDeleteUser={this.delteUser} onUpdateUser={this.updateUser} onSaveUser={this.saveUser}
+                return <UserEditor onDeleteUser={this.delteUser} onUpdateUser={this.updateUser}
+                                   onSaveUser={this.saveUser}
                                    selectedUser={this.state.selectedUser}/>
         }
     }
@@ -246,27 +253,46 @@ class UsersView extends React.Component {
     }
 
     saveUser = () => {
-        let updateUser = this.state.selectedUser.id?"/"+this.state.selectedUser.id:"";
-        fetch("api/v0/users" + updateUser, {
-            method: updateUser?"PUT":"POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(this.state.selectedUser)
-        }).then((res) => res.json())
-            .then((r) => {
-                if (r.success) {
-                    this.setState({selectedUser: undefined, editing: false, cardTitle: "Usuarios"});
-                    this.loadUsers();
-                }else {
+        if (this.state.selectedUser.id) {
+            handler.updateUser(this.state.selectedUser)
+                .then((res) => {
+                    console.log('data',res.payload);
                     Swal.fire({
-                        title: 'Error',
-                        text: r.message,
+                        title: 'Usuario actualizado',
+                        text: `El usuario se actualizo correctamente`,
+                        icon: 'success',
+                        confirmButtonText: 'Ok',
+                        timer: 2000
+                    }).then(() => {
+                        this.loadUsers();
+                        this.setState({cardTitle: "Usuarios", selectedUser: undefined, editing: false});
                     })
-                }
-            }).catch((err) => {
-            console.log(err);
-        });
+                })
+        } else {
+            handler.createUser(this.state.selectedUser)
+                .then((res) => {
+                    if (res.success) {
+                        Swal.fire({
+                            title: 'Usuario creado',
+                            text: "El usuario se creo correctamente",
+                            icon: 'success',
+                            confirmButtonText: 'Ok',
+                            timer: 2000
+                        }).then(() => {
+                            this.loadUsers();
+                            this.setState({cardTitle: "Usuarios", selectedUser: undefined, editing: false});
+                        })
+                    }else{
+                        Swal.fire({
+                            title: 'Error',
+                            text: res.message,
+                            icon: 'error',
+                            confirmButtonText: 'Ok',
+                            timer: 2000
+                        })
+                    }
+                })
+        }
     }
 
     delteUser = () => {
@@ -280,27 +306,24 @@ class UsersView extends React.Component {
             confirmButtonText: 'Si, eliminar'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch("api/v0/users/" + this.state.selectedUser.id, {
-                    method: "DELETE",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }).then((res) => res.json())
-                    .then((r) => {
-                        if (r.success) {
-                            this.setState({selectedUser: undefined, editing: false, cardTitle: "Usuarios"});
-                            this.loadUsers();
-                        }else {
+                handler.deleteUser(this.state.selectedUser.id)
+                    .then((res) => {
+                        if (res.success) {
                             Swal.fire({
-                                title: 'Error',
-                                text: r.message,
+                                title: 'Usuario eliminado',
+                                text: "El usuario se elimino correctamente",
+                                icon: 'success',
+                                confirmButtonText: 'Ok',
+                                timer: 2000
+                            }).then(() => {
+                                this.loadUsers();
+                                this.setState({cardTitle: "Usuarios", selectedUser: undefined, editing: false});
                             })
                         }
-                    }).catch((err) => {
-                    console.log(err);
-                });
+
+                    })
             }
-        });
+        })
     }
 
     editUserCallback = (selectedUser, index) => {

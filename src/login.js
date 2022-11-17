@@ -3,10 +3,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './styles.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import $ from 'jquery';
 import Registration from "./registration";
 import POS from "./pos";
 import logo from './text10.png';
+const handler = require('./handler');
 
 
 class Login extends React.Component {
@@ -14,8 +14,8 @@ class Login extends React.Component {
     username = "";
     password = "";
 
-    constructor(props, context) {
-        super(props, context);
+    constructor(props) {
+        super(props);
         this.state = {error: false, message: ""};
     }
 
@@ -24,31 +24,14 @@ class Login extends React.Component {
     }
 
     login = () => {
-        if (this.username === "" || this.password === "") {
-            return this.setState({
-                error: true,
-                type: "alert-danger",
-                message: "Error: Usuario y contraseña obligatorios"
-            });
-        }
-        fetch('/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                username: this.username,
-                password: this.password
-            })
-        }).then(response => response.json())
-            .then((r) => {
-                if (!r.success) {
-                    this.setState({error: true, message: r.message});
-                }
-                if (r.success) {
-                    this.props.onLogin(r.user);
-                }
-            });
+        handler.login(this.username,this.password).then((response) => {
+            if (response.success) {
+                this.setState({error: false, message: ""});
+                this.props.onLogin(response.payload);
+            } else {
+                this.setState({error: true, message: response.error});
+            }
+        });
     }
 
     render() {
@@ -86,22 +69,23 @@ class Login extends React.Component {
 
 
 class AuthenticationAndRegister extends React.Component {
-    constructor(props, context) {
-        super(props, context);
-        this.checkSession();
+    constructor(props) {
+        super(props);
         this.state = {view: "", message: 'Everything is fine', type: "alert-danger", error: false};
     }
 
+    componentDidMount() {
+        this.checkSession();
+    }
+
     async checkSession() {
-        fetch('/session').then(response => response.json())
-            .then((r) => {
-                if (r.success) {
-                    return this.setState({user: r.user, view: "dash"});
-                }
-                if(!r.success) {
-                    this.setState({view: "login"});
-                }
-            });
+        handler.session.check().then((r) => {
+            if (r.success) {
+                this.setState({view: "dash",user:r.payload});
+            }else{
+                this.setState({view: "login"});
+            }
+        });
     }
 
 
