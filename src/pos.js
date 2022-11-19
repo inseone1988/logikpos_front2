@@ -13,6 +13,7 @@ import CustomersView from './customers';
 import ProductEdition from "./productedition";
 import ProvidersDisplay from "./providerEdition";
 import UsersView from "./users";
+import MoneyCount from './moneycount';
 import handler from "./handler";
 
 import logo from './text10.png';
@@ -150,7 +151,7 @@ function MainContent(props) {
     const whatToDisplay = () => {
         switch (props.currentview) {
             case "venta":
-                return <SellViewport loadProducts={props.loadProducts} products={props.products}/>
+                return <SellViewport closeDrawer={props.closeDrawer} loadProducts={props.loadProducts} products={props.products}/>
             case "productos":
                 return <ProductEdition loadProducts={props.loadProducts} products={props.products}/>
             case "provedores":
@@ -162,6 +163,8 @@ function MainContent(props) {
                 return <SellViewport/>
             case "usuarios":
                 return <UsersView users={props.users} loadUsers={props.loadUsers}/>
+            case "cashDrawerClose":
+                return <MoneyCount onMoneyCounted={props.getResume}/>
             default:
                 break;
         }
@@ -233,6 +236,10 @@ class POS extends React.Component {
         handler.logout().then((data) => window.location.reload());
     }
 
+    getResume = ()=>{
+        this.changeContext("cashDrawerClose");
+    }
+
     render() {
         return (
             <div className="container-fluid">
@@ -241,7 +248,8 @@ class POS extends React.Component {
                              loadCustomers={this.loadCustomers} providers={this.state.providers}
                              loadProviders={this.loadProviders} user={this.props.user} loadProducts={this.loadProducts}
                              products={this.state.products} itemClick={this.changeContext}
-                             currentview={this.state.currentview}/>
+                             currentview={this.state.currentview}
+                             closeDrawer={this.getResume}/>
             </div>
         );
     }

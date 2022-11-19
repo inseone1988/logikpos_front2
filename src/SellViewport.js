@@ -232,6 +232,10 @@ function CodeCapture(props) {
         await fetch('api/v0/products/faketize');
     }
 
+    function setMoneyCountView(){
+        props.closeDrawer();
+    }
+
     return (
         <div className="row search-bar-end">
             <div className="col-12">
@@ -248,7 +252,7 @@ function CodeCapture(props) {
                     <button onClick={props.cancel} className="btn btn-sm btn-primary">Cancelar orden [F4]</button>
                     <button onClick={() => cashMovement()} className="btn btn-sm btn-primary">Mov. Caja [F5]</button>
                     <button onClick={props.setSearchView} className="btn btn-sm btn-primary">Buscar [F10]</button>
-                    <button className="btn btn-sm btn-primary">Cierre de caja [F12]</button>
+                    <button onClick={setMoneyCountView} className="btn btn-sm btn-primary">Cierre de caja [F12]</button>
                 </div>
             </div>
         </div>
@@ -258,7 +262,7 @@ function CodeCapture(props) {
 function SearchBar(props) {
     return (
         <div className="col-sm-12 col-md-8">
-            <CodeCapture selectItem={props.selectItem} cobrar={props.checkout} iva={props.tax} cancel={props.cancel} setSearchView={props.setSearchView} search={props.search} products={props.products} onProductSelected={props.onProductSelected} />
+            <CodeCapture closeDrawer={props.closeDrawer} selectItem={props.selectItem} cobrar={props.checkout} iva={props.tax} cancel={props.cancel} setSearchView={props.setSearchView} search={props.search} products={props.products} onProductSelected={props.onProductSelected} />
         </div>
     );
 }
@@ -413,6 +417,12 @@ class SellViewport extends React.Component {
                             this.setSearchView();
                             break;
                     }
+                    case "F12":
+                        switch (this.state.context) {
+                            case "sell":
+                                this.setMoneyCountView();
+                                break;
+                        }
                 case 'Delete':
                     switch (this.state.context) {
                         case 'sell':
@@ -447,6 +457,10 @@ class SellViewport extends React.Component {
                         break;
             }
         }
+    }
+
+    setMoneyCountView = () => {
+        this.setState({ context: "moneyCount", contextMessage: "Conteo de dinero" });
     }
 
     setSellView = () => {
@@ -635,7 +649,7 @@ class SellViewport extends React.Component {
     SellPane() {
         return (<div className="row">
             <LCDDisplay order={this.state.order} />
-            <SearchBar selectItem={this.selectItem} checkout={this.handleCheckout} tax={this.applyTax} cancel={this.cancelOrder} search={this.searchProduct} setSearchView={this.setSearchView} order={this.state.order} products={this.props.products}
+            <SearchBar closeDrawer={this.props.closeDrawer} selectItem={this.selectItem} checkout={this.handleCheckout} tax={this.applyTax} cancel={this.cancelOrder} search={this.searchProduct} setSearchView={this.setSearchView} order={this.state.order} products={this.props.products}
                 onProductSelected={this.updateOrderDetails} />
             <ItemPanel onSelectItem={this.selectItem} deleteIte={this.deleteItem}
                 modifyPrice={this.modifyItemPrice} modifyQuantity={this.modifyItemQuantity}

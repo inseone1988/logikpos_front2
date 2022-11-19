@@ -70,6 +70,7 @@ const handler = {
     getProductsByCustomer : async (customer)=>window.APPController.api("api",{request:"product.getByCustomer",customer:customer}),
     getProductsByCustomerAndUser : async (customer,user)=>window.APPController.api("api",{request:"product.getByCustomerAndUser",customer:customer,user:user}),
     getProductsByUser : async (user)=>window.APPController.api("api",{request:"product.getByUser",user:user}),
+    saveMoneyCount : async (data)=>window.APPController.api("api",{request:"moneyCount.save",data:data}),
 }
 
 module.exports = handler;
